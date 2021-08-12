@@ -1,3 +1,4 @@
+
 #!/usr/bin/python
 
 # sucscribes to log_ranges and publishes PointStanmed message in LC
@@ -29,7 +30,7 @@ if __name__ == '__main__':
 
     r=rospy.Rate(100)
 
-    num_of_markers=69
+    num_of_markers=3
     #results=np.zeros((num_of_markers,6))
 
     last_translation = np.zeros((num_of_markers+1,3))
@@ -40,14 +41,14 @@ if __name__ == '__main__':
         weighted_sum = np.array(0.0)
         for num in range(num_of_markers):
             try:
-                transform_lc = tfBuffer.lookup_transform("loc_"+str(num),"aruco_"+str(num), rospy.Time(0))
+                transform_lc = tfBuffer.lookup_transform("cam_loc_10"+str(num),"aruco_10"+str(num), rospy.Time(0))
                 x=transform_lc.transform.translation.x
                 y=transform_lc.transform.translation.y
                 z=transform_lc.transform.translation.z
             except Exception as e:
                 #rospy.loginfo(e)
                 continue
-            
+
             curr_translation=np.array((x,y,z))
 
             if np.array_equal(last_translation[num],curr_translation):
@@ -61,7 +62,7 @@ if __name__ == '__main__':
             # print("dist = " , distance ,"weight = ", weight)
 
 
-            transform_wc = tfBuffer.lookup_transform("world", "loc_"+str(num), rospy.Time(0))
+            transform_wc = tfBuffer.lookup_transform("room_link", "cam_loc_10"+str(num), rospy.Time(0))
             qx = transform_wc.transform.rotation.x
             qy = transform_wc.transform.rotation.y
             qz = transform_wc.transform.rotation.z
@@ -86,8 +87,8 @@ if __name__ == '__main__':
 
             t = geometry_msgs.msg.TransformStamped()
             t.header.stamp = rospy.Time.now()
-            t.header.frame_id = "world"
-            t.child_frame_id = "ground_truth_aruco"
+            t.header.frame_id = "room_link"
+            t.child_frame_id = "cam_weighted"
             t.transform.translation.x = results[0]
             t.transform.translation.y = results[1]
             t.transform.translation.z = results[2]
@@ -97,6 +98,7 @@ if __name__ == '__main__':
             t.transform.rotation.y = q[1]
             t.transform.rotation.z = q[2]
             t.transform.rotation.w = q[3]
+            print(t)
             br.sendTransform(t)
 
             factor = 1 #transform weighted sum into stdev
@@ -104,14 +106,14 @@ if __name__ == '__main__':
             reliability.data = weighted_sum * factor 
             rel_pub.publish(reliability)
 
-            pose = PoseStamped()
-            pose.header.stamp = rospy.Time.now()
-            pose.header.frame_id = "world"
-            pose.pose.position.x = results[0]
-            pose.pose.position.y = results[1]
-            pose.pose.position.z = results[2]
-            pose.pose.orientation.x = q[0]
-            pose.pose.orientation.y = q[1]
-            pose.pose.orientation.z = q[2]
-            pose.pose.orientation.w = q[3]
-            pose_pub.publish(pose)
+            # pose = PoseStamped()
+            # pose.header.stamp = rospy.Time.now()
+            # pose.header.frame_id = "world"
+            # pose.pose.position.x = results[0]
+            # pose.pose.position.y = results[1]
+            # pose.pose.position.z = results[2]
+            # pose.pose.orientation.x = q[0]
+            # pose.pose.orientation.y = q[1]
+            # pose.pose.orientation.z = q[2]
+            # pose.pose.orientation.w = q[3]
+            # pose_pub.publish(pose)
