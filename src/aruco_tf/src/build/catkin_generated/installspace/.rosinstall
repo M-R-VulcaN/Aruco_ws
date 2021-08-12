@@ -1,0 +1,2 @@
+- setup-file:
+    local-name: /home/makeruser/aruco_ws/src/aruco_tf/src/install/setup.sh

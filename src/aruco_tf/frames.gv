@@ -1,0 +1,12 @@
+digraph G {
+"aruco_101" -> "cam_loc_101"[label="Broadcaster: /arucoDetect\nAverage rate: 30.176 Hz\nMost recent transform: 1628752394.673 ( 0.017 sec old)\nBuffer length: 4.971 sec\n"];
+"aruco_102" -> "cam_loc_102"[label="Broadcaster: /arucoDetect\nAverage rate: 30.177 Hz\nMost recent transform: 1628752394.671 ( 0.019 sec old)\nBuffer length: 4.938 sec\n"];
+edge [style=invis];
+ subgraph cluster_legend { style=bold; color=black; label ="view_frames Result";
+"Recorded at time: 1628752394.690"[ shape=plaintext ] ;
+ }->"aruco_101";
+edge [style=invis];
+ subgraph cluster_legend { style=bold; color=black; label ="view_frames Result";
+"Recorded at time: 1628752394.690"[ shape=plaintext ] ;
+ }->"aruco_102";
+}

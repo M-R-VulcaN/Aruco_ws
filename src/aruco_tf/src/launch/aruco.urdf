@@ -1,0 +1,34 @@
+
+
+<robot name="Aruco">
+  <link name="base_link" />
+  <link name="aruco_1" />
+  <link name="aruco_2" />
+  <link name="aruco_3" />
+  <link name="aruco_4" />
+
+  <joint name="aruco_1" type="fixed">
+    <parent link="base_link" />
+    <child link="aruco_1" />
+    <origin xyz="0 4. 0." rpy=" 1.57 0. 0." />
+  </joint>
+
+  <joint name="aruco_2" type="fixed">
+    <parent link="base_link" />
+    <child link="aruco_2" />
+    <origin xyz="1.0 4. 0." rpy="1.57 0. 0" />
+  </joint>
+
+    <joint name="aruco_3" type="fixed">
+    <parent link="base_link" />
+    <child link="aruco_3" />
+    <origin xyz="2.5 4.0 0." rpy="1.57 0. 0." />
+  </joint>
+
+    <joint name="aruco_4" type="fixed">
+    <parent link="base_link" />
+    <child link="aruco_4" />
+    <origin xyz="3.8 2.85 0." rpy="1.57 0. -1.57" />
+  </joint>
+
+</robot>
