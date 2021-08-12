@@ -4,13 +4,29 @@
 
 **The code called ArucoDetectRos.py under the path Aruco_ws/src/aruco_tf/src/src/ArucoDetectRos.py**
 
-
-
 **run:**
-1. terminal 1: > $ roscore
+```
+terminal 1: $ roscore
 
-1. terminal 2: > $ source ~/Aruco_ws/devel/setup.bash
-   1. $ roslaunch aruco_tf static_new.launch
+terminal 2: $ source ~/Aruco_ws/devel/setup.bash
+            $ roslaunch aruco_tf static_new.launch
 
-1. terminal 3: > $ rviz
+terminal 3: $ rviz
+```
 
+**RVIZ configuration:**
+```
+Add TF
+change Global Frame > room_link
+```
+
+**use the client:**
+```
+run the client.py codeunder the path Aruco_ws/src/aruco_tf/client.py
+```
+
+**to display frame**
+```
+$ rosrun tf view_frames
+$ evince frames.pdf 
+```
