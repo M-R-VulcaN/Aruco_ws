@@ -1,0 +1,15 @@
+# Aruco_ws
+
+Clone the repo to your computer
+
+The code called ArucoDetectRos.py under the path Aruco_ws/src/aruco_tf/src/src/ArucoDetectRos.py
+
+run:
+"""
+terminal 1: $ roscore
+
+terminal 2: $ source ~/Aruco_ws/devel/setup.bash
+            $ roslaunch aruco_tf static_new.launch
+
+terminal 3: $ rviz
+"""
