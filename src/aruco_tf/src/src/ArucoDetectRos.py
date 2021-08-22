@@ -8,13 +8,12 @@ References  :
     2) https://docs.opencv.org/3.4.3/dc/dbb/tutorial_py_calibration.html
     3) https://docs.opencv.org/3.1.0/d5/dae/tutorial_aruco_detection.html
 """
+
 from math import floor
 import numpy as np
 import time
 import rospy
 from cv_bridge import CvBridge
-import cv2 as cv
-import cv2.aruco as aruco
 from sensor_msgs.msg import Image
 from sensor_msgs.msg import CameraInfo
 from sensor_msgs.msg import Imu
@@ -24,11 +23,12 @@ from std_msgs.msg import String
 import message_filters
 import tf.transformations as tr
 import numpy as np
-import cv2
 import pickle
 import glob
+import cv2
+import cv2.aruco as aruco
 
-calib_path_param = 'Aruco_Tracker/calib_images/**/*.jpg'  ########## AMIR -> change these images and location
+calib_path_param = '/home/makeruser/wifi-Project/Aruco_Tracker/images/for_calib/*.jpg'  ########## AMIR -> change these images and location
 aruco_dict_param = aruco.DICT_4X4_250 ########## AMIR -> this work for https://chev.me/arucogen/
 marker_length = 0.19 # meters
 
@@ -133,6 +133,7 @@ def save_load_calib(mtx=None, dist=None, save_calib=False):
 def get_position_from_image(frame, to_draw=False, to_show=False, mtx=None, dist=None, save_calib=False):
 
     mtx, dist = save_load_calib(mtx=mtx, dist=dist, save_calib=save_calib)
+    #print(mtx, dist)
     # operations on the frame
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
@@ -223,6 +224,11 @@ def get_position_from_video(cap, to_draw=False, to_show=False, mtx=None, dist=No
 
 if __name__ == '__main__':
 
+
+    #ret, mtx, dist, rvecs, tvecs = calib_camera()
+    #save_load_calib(mtx=mtx, dist=dist, save_calib=True)
+    #time.sleep(1000)
+    
     rospy.init_node('arucoDetect')
     br = tf.TransformBroadcaster()
     time.sleep(1)
