@@ -96,7 +96,7 @@ def get_position_from_single_aruco(rvec, tvec, ids):
 
     return translate
 
-def get_my_position_from_single_aruco(rvec, tvec, ids):
+def get_human_position_from_single_aruco(rvec, tvec, ids): #without transposing
     # draw axis for the aruco markers
     rot_mat_obj2cam, _ = cv2.Rodrigues(rvec)
     rot_mat_cam2obj = rot_mat_obj2cam  # transpose the object-to-cam rotation matrix to get cam-to-object  //REMOVED .T
@@ -169,7 +169,7 @@ def get_position_from_image(frame, to_draw=False, to_show=False, mtx=None, dist=
                 pos = get_position_from_single_aruco(rvec[i], tvec[i], ids[i])
             #human ids -> without transpose
             elif(ids[i] in human_ids):
-                pos = get_my_position_from_single_aruco(rvec[i], tvec[i], ids[i])
+                pos = get_human_position_from_single_aruco(rvec[i], tvec[i], ids[i])
             #unknown ids -> same as floor ids
             else:
                 pos = get_position_from_single_aruco(rvec[i], tvec[i], ids[i])
@@ -234,7 +234,7 @@ if __name__ == '__main__':
     file = open('testings10.csv','w')
     writer = csv.writer(file)
 
-    writer.writerow(['Time:','Lable:','Aruco ID','x','y','z'])
+    writer.writerow(['Time:','Lable:','Aruco ID','x','y','z','ms'])
 
     rospy.init_node('arucoDetect')
     br = tf.TransformBroadcaster()
@@ -253,16 +253,17 @@ if __name__ == '__main__':
     while(True):
         positions = get_position_from_video(cap, to_draw=True, to_show=True)
 
-        count += 0.033   # because we were filming in 30 fps (1/30)
-        count = round(count, 3) #round the float number to only 3 digits after the 0 (x.xxx)
-        
+        count += 0.0333333333333333333   # because we were filming in 30 fps (1/30)
+        # count += 1/30
         hours = (count/60)/60
         minutes = count/60
         seconds = count % 60
+        ms = count*1000
+
+        # count = round(count, 3) #round the float number to only 3 digits after the 0 (x.xxx)
 
         timeCount = "%02d:%02d:%.3f" % (hours, minutes, seconds)
         
-
         # writer.writerow(['{:.1f}'.format(timeElapsed)])
                             # ['Time:','Lable:','Aruco ID','x','y','z']   >> writes to the csv file in this format
         for pos in positions:
@@ -271,15 +272,15 @@ if __name__ == '__main__':
                 
             elif pos[0][0] in human_ids:
                 print('{}: Human [{:.2f}, {:.2f}, {:.2f}]'.format(pos[0][0], pos[1][0], pos[1][1], pos[1][2]))
-                writer.writerow([timeCount,'',pos[0][0],'{:.2f}'.format(pos[1][0]),'{:.2f}'.format(pos[1][1]),'{:.2f}'.format(pos[1][2])])
+                writer.writerow([timeCount,'',pos[0][0],'{:.2f}'.format(pos[1][0]),'{:.2f}'.format(pos[1][1]),'{:.2f}'.format(pos[1][2]),ms])
                                 # ['Time:','Lable:','Aruco ID','x','y','z']   >> writes to the csv file in this format
                 alreadywritten = True
             else:
                 print('{}: Undefined [{:.2f}, {:.2f}, {:.2f}]'.format(pos[0][0], pos[1][0], pos[1][1], pos[1][2]))
 
         if(alreadywritten == False):
-            writer.writerow([timeCount]) #write the time to the csv file
-        else:
+            writer.writerow([timeCount,'','','','','',ms]) #write the time to the csv file
+        else:                # time lable id x  y  z
             alreadywritten = False
 
         frameCount += 1
@@ -288,6 +289,8 @@ if __name__ == '__main__':
         print("-------------------------------")
         print("time: " + timeCount + "\n")
         print("frames: " , frameCount)
+        print("fps: ", frameCount/count)
+        print("ms = ", ms)
 
     # When everything done, release the capture
     cap.release()
