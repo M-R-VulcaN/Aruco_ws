@@ -240,9 +240,14 @@ if __name__ == '__main__':
     br = tf.TransformBroadcaster()
     time.sleep(1)
     
-    # cap = cv2.VideoCapture(0)
+    #if you are using the camera as a video input then uncomment the line below:
+
+    # cap = cv2.VideoCapture(0) 
+
+    #using a already recorded video:
     test = raw_input("enter mp4 file name: ")
     print(test)
+
     cap = cv2.VideoCapture(test)
 
     count = 0
@@ -254,7 +259,6 @@ if __name__ == '__main__':
         positions = get_position_from_video(cap, to_draw=True, to_show=True)
 
         count += 0.0333333333333333333   # because we were filming in 30 fps (1/30)
-        # count += 1/30
         hours = (count/60)/60
         minutes = count/60
         seconds = count % 60
@@ -264,8 +268,6 @@ if __name__ == '__main__':
 
         timeCount = "%02d:%02d:%.3f" % (hours, minutes, seconds)
         
-        # writer.writerow(['{:.1f}'.format(timeElapsed)])
-                            # ['Time:','Lable:','Aruco ID','x','y','z']   >> writes to the csv file in this format
         for pos in positions:
             if pos[0][0] in floor_ids:   
                 print('{}: Floor [{:.2f}, {:.2f}, {:.2f}]'.format(pos[0][0], pos[1][0], pos[1][1], pos[1][2]))
@@ -280,12 +282,11 @@ if __name__ == '__main__':
 
         if(alreadywritten == False):
             writer.writerow([timeCount,'','','','','',ms]) #write the time to the csv file
-        else:                # time lable id x  y  z
+        else:                # time lable id x  y  z  ms
             alreadywritten = False
 
         frameCount += 1
 
-        # writer.writerow(['{:.1f}'.format(timeElapsed)])
         print("-------------------------------")
         print("time: " + timeCount + "\n")
         print("frames: " , frameCount)
