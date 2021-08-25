@@ -27,6 +27,8 @@ import pickle
 import glob
 import cv2
 import cv2.aruco as aruco
+import csv
+
 
 calib_path_param = '/home/makeruser/wifi-Project/Aruco_Tracker/images/for_calib/*.jpg'  ########## AMIR -> change these images and location
 aruco_dict_param = aruco.DICT_4X4_250 ########## AMIR -> this work for https://chev.me/arucogen/
@@ -164,14 +166,14 @@ def get_position_from_image(frame, to_draw=False, to_show=False, mtx=None, dist=
 
 
         for i in range(0, ids.size):
-            # floor ids
-            if(ids[i] in floor_ids):
+
+            if(ids[i] in floor_ids):    # floor ids
                 pos = get_position_from_single_aruco(rvec[i], tvec[i], ids[i])
-            #human ids -> without transpose
-            elif(ids[i] in human_ids):
+
+            elif(ids[i] in human_ids):   #human ids -> without transpose
                 pos = get_human_position_from_single_aruco(rvec[i], tvec[i], ids[i])
-            #unknown ids -> same as floor ids
-            else:
+            
+            else:   #unknown ids -> same as floor ids
                 pos = get_position_from_single_aruco(rvec[i], tvec[i], ids[i])
 
             positions.append([ids[i], pos])
@@ -196,6 +198,7 @@ def get_position_from_image(frame, to_draw=False, to_show=False, mtx=None, dist=
                 else:
                     strg += str(ids[i][0])+': Undefined ' + '[{:.2f}, {:.2f}, {:.2f}]\n'.format(positions[i][1][0], positions[i][1][1], positions[i][1][2])
 
+            # an calculatioin to display all the id's properly on the screen 
             for x, line in enumerate(strg.split('\n')[:-1]):
                 y = y0 + x*dy
                 cv2.putText(frame, "Id " + line, (0, y), font, 0.6, (0, 255, 0), 2, cv2.LINE_AA)
@@ -230,21 +233,19 @@ if __name__ == '__main__':
     #ret, mtx, dist, rvecs, tvecs = calib_camera()
     #save_load_calib(mtx=mtx, dist=dist, save_calib=True)
     #time.sleep(1000)
-    import csv
-    file = open('testings10.csv','w')
+
+    file = open('testings10.csv','w')   #opening the csv file
     writer = csv.writer(file)
 
-    writer.writerow(['Time:','Lable:','Aruco ID','x','y','z','ms'])
+    writer.writerow(['Time:','Lable:','Aruco ID','x','y','z','ms'])  #writing the first line to the csv file
 
     rospy.init_node('arucoDetect')
     br = tf.TransformBroadcaster()
     time.sleep(1)
-    
-    #if you are using the camera as a video input then uncomment the line below:
 
-    # cap = cv2.VideoCapture(0) 
+    # cap = cv2.VideoCapture(0)  #in case that you are using the camera as an input
 
-    #using a already recorded video:
+    #in case that you are using a already recorded video:
     test = raw_input("enter mp4 file name: ")
     print(test)
 
@@ -258,6 +259,7 @@ if __name__ == '__main__':
     while(True):
         positions = get_position_from_video(cap, to_draw=True, to_show=True)
 
+        #in order to create a user friendly time:
         count += 0.0333333333333333333   # because we were filming in 30 fps (1/30)
         hours = (count/60)/60
         minutes = count/60
@@ -269,17 +271,19 @@ if __name__ == '__main__':
         timeCount = "%02d:%02d:%.3f" % (hours, minutes, seconds)
         
         for pos in positions:
-            if pos[0][0] in floor_ids:   
+            if pos[0][0] in floor_ids:    # recognized as a floor id's  
                 print('{}: Floor [{:.2f}, {:.2f}, {:.2f}]'.format(pos[0][0], pos[1][0], pos[1][1], pos[1][2]))
                 
-            elif pos[0][0] in human_ids:
+            elif pos[0][0] in human_ids:    # recognized as a human id's 
                 print('{}: Human [{:.2f}, {:.2f}, {:.2f}]'.format(pos[0][0], pos[1][0], pos[1][1], pos[1][2]))
                 writer.writerow([timeCount,'',pos[0][0],'{:.2f}'.format(pos[1][0]),'{:.2f}'.format(pos[1][1]),'{:.2f}'.format(pos[1][2]),ms])
                                 # ['Time:','Lable:','Aruco ID','x','y','z']   >> writes to the csv file in this format
                 alreadywritten = True
-            else:
+            else:   # recognized id but undefined id
                 print('{}: Undefined [{:.2f}, {:.2f}, {:.2f}]'.format(pos[0][0], pos[1][0], pos[1][1], pos[1][2]))
 
+        # in order to write the timestamp to the csv file even if no id's got recognized
+        # alreadywritten parameter should be false if HUMAN id NOT recognized
         if(alreadywritten == False):
             writer.writerow([timeCount,'','','','','',ms]) #write the time to the csv file
         else:                # time lable id x  y  z  ms
