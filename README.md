@@ -1,7 +1,7 @@
 # Aruco_ws
 **Ready dataset csv file for room 10:**
 ```
-~/Aruco_ws/src/aruco_tf/src/src/ready dataset/room_10.csv
+ds_room_10.csv
 ```
 **Clone the repo to your computer**
 
