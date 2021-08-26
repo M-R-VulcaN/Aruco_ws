@@ -9,12 +9,18 @@
 
 **run:**
 ```
-terminal 1: $ roscore
-
-terminal 2: $ source ~/Aruco_ws/devel/setup.bash
-            $ roslaunch aruco_tf static_new.launch
-
-terminal 3: $ rviz
+$ source ~/Aruco_ws/devel/setup.bash
+$ roslaunch aruco_tf static_new.launch
+--------------------------------------
+$ source ~/Aruco_ws/devel/setup.bash
+$ cd ~/Aruco_ws/
+$ python2.7 publish_ws.py
+--------------------------------------
+$ source ~/Aruco_ws/devel/setup.bash
+$ cd ~/Aruco_ws/src/aruco_tf/src/src/
+$ python2.7 ArucoDetectVideo.py
+--------------------------------------
+$ rviz
 ```
 
 **RVIZ configuration:**
