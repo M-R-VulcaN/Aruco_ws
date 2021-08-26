@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from __future__ import division  #in order to be able to set the (1/30)
 """
 Framework   : OpenCV Aruco
 Description : Calibration of camera and using that for finding pose of multiple markers
@@ -28,7 +29,6 @@ import glob
 import cv2
 import cv2.aruco as aruco
 import csv
-
 
 calib_path_param = '/home/makeruser/wifi-Project/Aruco_Tracker/images/for_calib/*.jpg'  ########## AMIR -> change these images and location
 aruco_dict_param = aruco.DICT_4X4_250 ########## AMIR -> this work for https://chev.me/arucogen/
@@ -92,6 +92,7 @@ def get_position_from_single_aruco(rvec, tvec, ids):
     
     quat=tr.quaternion_from_matrix(rot_mat_cam2obj_padded) #obtain the cam-to-object quaternion rotation indices
 
+    # translate = np.dot(rot_mat_cam2obj, tvec[0])  # rotate the translation vector
     translate = np.dot(-1 * rot_mat_cam2obj, tvec[0])  # rotate the translation vector
 
     br.sendTransform((translate),(quat),rospy.Time.now(),"cam_loc_"+ str(ids[0]),"aruco_"+str(ids[0])) #publish the transformation for this tag
@@ -111,7 +112,7 @@ def get_human_position_from_single_aruco(rvec, tvec, ids): #without transposing
     
     translate = tvec[0] #np.dot( rot_mat_cam2obj, tvec[0])  # rotate the translation vector
     
-    br.sendTransform((translate),(quat),rospy.Time.now(),"human_loc_"+ str(ids[0]),"cam_loc_"+str(floor_ids[0])) #publish the transformation for this tag
+    br.sendTransform((translate),(quat),rospy.Time.now(),"human_loc_"+ str(ids[0]),"cam_weighted") #publish the transformation for this tag
 
     #print('{:.2f}, {:.2f}, {:.2f}'.format(translate[0], translate[1], translate[2]))
 
@@ -234,7 +235,7 @@ if __name__ == '__main__':
     #save_load_calib(mtx=mtx, dist=dist, save_calib=True)
     #time.sleep(1000)
 
-    file = open('testings10.csv','w')   #opening the csv file
+    file = open('new1111.csv','w')   #opening the csv file
     writer = csv.writer(file)
 
     writer.writerow(['Time:','Lable:','Aruco ID','x','y','z','ms'])  #writing the first line to the csv file
@@ -246,7 +247,8 @@ if __name__ == '__main__':
     # cap = cv2.VideoCapture(0)  #in case that you are using the camera as an input
 
     #in case that you are using a already recorded video:
-    test = raw_input("enter mp4 file name: ")
+    # test = raw_input("enter mp4 file name: ")
+    test = '10.mp4'
     print(test)
 
     cap = cv2.VideoCapture(test)
@@ -260,7 +262,7 @@ if __name__ == '__main__':
         positions = get_position_from_video(cap, to_draw=True, to_show=True)
 
         #in order to create a user friendly time:
-        count += 0.0333333333333333333   # because we were filming in 30 fps (1/30)
+        count += 1/30   # because we were filming in 30 fps (1/30)
         hours = (count/60)/60
         minutes = count/60
         seconds = count % 60
@@ -293,9 +295,8 @@ if __name__ == '__main__':
 
         print("-------------------------------")
         print("time: " + timeCount + "\n")
-        print("frames: " , frameCount)
+        print("frames: " , frameCount, "ms = ", ms)
         print("fps: ", frameCount/count)
-        print("ms = ", ms)
 
     # When everything done, release the capture
     cap.release()
