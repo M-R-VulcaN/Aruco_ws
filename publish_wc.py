@@ -89,14 +89,13 @@ if __name__ == '__main__':
                 rospy.loginfo(e)
                 continue
 
-
-        print("weighted_sum = "+ str(weighted_sum))
+        # print("weighted_sum = "+ str(weighted_sum))
         if weighted_sum != 0:
             results = results / weighted_sum
             results = results.flatten()
 
-            results_filtered=results_filtered*0.99+results*0.01
-            print("results_filtered = " +str(results_filtered))
+            results_filtered=results_filtered*0.98+results*0.02
+            # print("results_filtered = " +str(results_filtered))
             data_to_publish = Float64MultiArray()  # the data to be sent, initialise the array
             data_to_publish.data = results#.flatten() # assign the array with the value you want to send
             pub.publish(data_to_publish)
@@ -108,13 +107,14 @@ if __name__ == '__main__':
             t.transform.translation.x = results_filtered[0]
             t.transform.translation.y = results_filtered[1]
             t.transform.translation.z = results_filtered[2]
-            q = tf_conversions.transformations.quaternion_from_euler(results_filtered[3],results_filtered[4],results_filtered[5]+1.57)
             
+            #here the error in the roll pitch yaw happens:
+            q = tf_conversions.transformations.quaternion_from_euler(results_filtered[3],results_filtered[4],results_filtered[5])
             t.transform.rotation.x = q[0]
             t.transform.rotation.y = q[1]
             t.transform.rotation.z = q[2]
             t.transform.rotation.w = q[3]
-            # print(t)
+            print(t)
             # print(t.transform.translation)
             br.sendTransform(t)
 
