@@ -29,6 +29,7 @@ import glob
 import cv2
 import cv2.aruco as aruco
 import csv
+import tf2_ros
 
 calib_path_param = '/home/makeruser/wifi-Project/Aruco_Tracker/images/for_calib/*.jpg'  ########## AMIR -> change these images and location
 aruco_dict_param = aruco.DICT_4X4_250 ########## AMIR -> this work for https://chev.me/arucogen/
@@ -101,6 +102,7 @@ def get_position_from_single_aruco(rvec, tvec, ids):
 
 def get_human_position_from_single_aruco(rvec, tvec, ids): #without transposing
     # draw axis for the aruco markers
+
     rot_mat_obj2cam, _ = cv2.Rodrigues(rvec)
     rot_mat_cam2obj = rot_mat_obj2cam  # transpose the object-to-cam rotation matrix to get cam-to-object  //REMOVED .T
     # add padding to the rotation matrix to get dim(4,4)
@@ -111,12 +113,22 @@ def get_human_position_from_single_aruco(rvec, tvec, ids): #without transposing
     quat=tr.quaternion_from_matrix(rot_mat_cam2obj_padded) #obtain the cam-to-object quaternion rotation indices
     
     translate = tvec[0] #np.dot( rot_mat_cam2obj, tvec[0])  # rotate the translation vector
-    
+    print(translate)
+    print(type(translate))
     br.sendTransform((translate),(quat),rospy.Time.now(),"human_loc_"+ str(ids[0]),"cam_weighted") #publish the transformation for this tag
-
+    time.sleep(0.001)
     #print('{:.2f}, {:.2f}, {:.2f}'.format(translate[0], translate[1], translate[2]))
-
-    return translate
+    transform_wc = tfBuffer.lookup_transform("room_link", "human_loc_"+str(ids[0]), rospy.Time(0))
+    # qx = transform_wc.transform.rotation.x
+    # qy = transform_wc.transform.rotation.y
+    # qz = transform_wc.transform.rotation.z
+    # qw = transform_wc.transform.rotation.w
+    x=transform_wc.transform.translation.x
+    y=transform_wc.transform.translation.y
+    z=transform_wc.transform.translation.z
+    
+    
+    return np.array((x,y,z))
 
 def save_load_calib(mtx=None, dist=None, save_calib=False):
     if save_calib and mtx is not None and dist is not None:
@@ -228,50 +240,71 @@ def get_position_from_video(cap, to_draw=False, to_show=False, mtx=None, dist=No
     return positions
 
 
+def get_user_choise():
+    select = input("1 - Use Camera(usb port 0).\n2 - Use Recored Video\n\nSelect Your Choise: ")
+    # select = 2
+    if(select == 1): # uses the camera as an input.
+        video = 0
+    elif(select == 2): #uses an already recoreded video.
+        video = raw_input("\nPlease enter the video name (has to be in the code folder): ")
+        # video = '10.mp4'
+    else:  #wrong input - will cause a break.
+        print("\n------\nerror! please select an option from the options above!\n------\n")
+        return -1
+    
+    # creating and opening a csv file.
+    file_name = raw_input("\nPlease enter the .csv file name: ")
+    # file_name = '123121.csv'
+    file = open(file_name,'w')
+    
+    return file,video
+
+
+def time_stamp(count):
+    # in order to create a user friendly time.
+    count += 1/30   # because we were filming in 30 fps (1/30).
+
+    hours = (count/60)/60
+    minutes = count/60
+    seconds = count % 60
+    ms = count*1000
+
+    timeCount = "%02d:%02d:%.3f" % (hours, minutes, seconds)
+    return count,timeCount,ms
+
+
 if __name__ == '__main__':
 
 
     #ret, mtx, dist, rvecs, tvecs = calib_camera()
     #save_load_calib(mtx=mtx, dist=dist, save_calib=True)
     #time.sleep(1000)
-
-    file = open('new1111.csv','w')   #opening the csv file
-    writer = csv.writer(file)
-
-    writer.writerow(['Time:','Lable:','Aruco ID','x','y','z','ms'])  #writing the first line to the csv file
-
-    rospy.init_node('arucoDetect')
-    br = tf.TransformBroadcaster()
-    time.sleep(1)
-
-    # cap = cv2.VideoCapture(0)  #in case that you are using the camera as an input
-
-    #in case that you are using a already recorded video:
-    # test = raw_input("enter mp4 file name: ")
-    test = '10.mp4'
-    print(test)
-
-    cap = cv2.VideoCapture(test)
-
     count = 0
     frameCount = 0
     alreadywritten = False
 
+    file,video = get_user_choise()
+    # file = 'file.csv'    # csv file.
+    # video = 0            # getting video from camera.
+    # video = '10.mp4'     # getting video from recorded video.
+    
+    writer = csv.writer(file)
+    writer.writerow(['Time:','Lable:','Aruco ID','x','y','z','ms'])  #writing the first line to the csv file.
+
+    rospy.init_node('arucoDetect')
+    br = tf.TransformBroadcaster()
+    time.sleep(1)
+    tfBuffer = tf2_ros.Buffer()
+    listener = tf2_ros.TransformListener(tfBuffer)
+    
+    cap = cv2.VideoCapture(video)  # vapturing from the video, video - selcted by the user.
+    
     # ret, mtx, dist, rvecs, tvecs = calib_camera()
     while(True):
         positions = get_position_from_video(cap, to_draw=True, to_show=True)
 
-        #in order to create a user friendly time:
-        count += 1/30   # because we were filming in 30 fps (1/30)
-        hours = (count/60)/60
-        minutes = count/60
-        seconds = count % 60
-        ms = count*1000
+        count,timeCount,ms = time_stamp(count)  #creating a user friendly time and writing it to the csv.
 
-        # count = round(count, 3) #round the float number to only 3 digits after the 0 (x.xxx)
-
-        timeCount = "%02d:%02d:%.3f" % (hours, minutes, seconds)
-        
         for pos in positions:
             if pos[0][0] in floor_ids:    # recognized as a floor id's  
                 print('{}: Floor [{:.2f}, {:.2f}, {:.2f}]'.format(pos[0][0], pos[1][0], pos[1][1], pos[1][2]))
@@ -279,15 +312,15 @@ if __name__ == '__main__':
             elif pos[0][0] in human_ids:    # recognized as a human id's 
                 print('{}: Human [{:.2f}, {:.2f}, {:.2f}]'.format(pos[0][0], pos[1][0], pos[1][1], pos[1][2]))
                 writer.writerow([timeCount,'',pos[0][0],'{:.2f}'.format(pos[1][0]),'{:.2f}'.format(pos[1][1]),'{:.2f}'.format(pos[1][2]),ms])
-                                # ['Time:','Lable:','Aruco ID','x','y','z']   >> writes to the csv file in this format
-                alreadywritten = True
+                                # ['Time:','Lable:','Aruco ID','x','y','z']   >> writes to the csv file in this format.
+                alreadywritten = True # setting it to prevent duplicates.
             else:   # recognized id but undefined id
                 print('{}: Undefined [{:.2f}, {:.2f}, {:.2f}]'.format(pos[0][0], pos[1][0], pos[1][1], pos[1][2]))
 
-        # in order to write the timestamp to the csv file even if no id's got recognized
-        # alreadywritten parameter should be false if HUMAN id NOT recognized
+        # in order to write the timestamp to the csv file even if non of the ids got recognized.
+        # alreadywritten parameter should be false if human id NOT recognized.
         if(alreadywritten == False):
-            writer.writerow([timeCount,'','','','','',ms]) #write the time to the csv file
+            writer.writerow([timeCount,'','','','','',ms]) # write the user friendly time to the csv file and ms.
         else:                # time lable id x  y  z  ms
             alreadywritten = False
 
@@ -295,9 +328,8 @@ if __name__ == '__main__':
 
         print("-------------------------------")
         print("time: " + timeCount + "\n")
-        print("frames: " , frameCount, "ms = ", ms)
-        print("fps: ", frameCount/count)
-
+        # print("frames: " , frameCount, "ms = ", ms)
+        print("video fps: ", frameCount/count)
     # When everything done, release the capture
     cap.release()
     cv2.destroyAllWindows()
