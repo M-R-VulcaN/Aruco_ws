@@ -46,8 +46,8 @@ room_10.columns = ["Time", "Aruco", "x", "y", "z", "ms", "Lable"]
 all_times_aruco =  room_10["Time"].tolist()
 
 xp_time, fp_x = get_xp_and_fp_for_interp(room_10,'x',return_time=True)
-fp_y = get_xp_and_fp_for_interp(room_10,'x')
-fp_z = get_xp_and_fp_for_interp(room_10,'x')
+fp_y = get_xp_and_fp_for_interp(room_10,'y')
+fp_z = get_xp_and_fp_for_interp(room_10,'z')
 xp_time_float = time_array_to_float_array(xp_time)
 all_times_aruco_float = time_array_to_float_array(all_times_aruco)
 
@@ -98,10 +98,19 @@ interpolated_data_z = numpy.interp(Timelist,xp_time_float,fp_z)
 # y = [0,1,2,3,6,7,8,9]
 
 # yinterp = np.interp(t_full, t_no_nans, y)
-plt.plot(xp_time_float, fp_x, 'o',color='c')
+# plt.plot(xp_time_float, fp_x, 'o',color='c')
 # plt.plot(xp_time_float, fp_y, 'o',color='m')
 # plt.plot(xp_time_float, fp_z, 'o',color='tab:pink')
-plt.plot(Timelist, interpolated_data_x, '-x',color='g')
+# plt.plot(Timelist, interpolated_data_x, '-x',color='g')
+
+#plot in XY plane
+# plt.plot(interpolated_data_y, interpolated_data_x, '-x',color='g')
+# plt.plot(fp_y, fp_x, 'o',color='r')
+
+#plot in XZ plane
+# plt.plot(interpolated_data_x, interpolated_data_z, '-x',color='g')
+# plt.plot(fp_x, fp_z, 'o',color='r')
+
 # plt.plot(Timelist, interpolated_data_y, '-x',color='y')
 # plt.plot(Timelist, interpolated_data_z, '-x',color='r')
 # plt.plot(t_full, yinterp, '-x')
