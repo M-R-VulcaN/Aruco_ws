@@ -10,7 +10,7 @@ from scipy.stats import linregress
 STANDING_HEIGHT_MIN_M = 1.3 
 LAYING_DOWN_HEIGHT_M = 0.5
 LAYING_DOWN_HEIGHT_M = 0.5
-MOVEMENT_SLOPE = 2
+MOVEMENT_SLOPE = 0.00004
 """
 This code reads the pcapdata csv and write it to a new csv file with the ds_room csv
 compares the ms from both files.
@@ -48,14 +48,18 @@ def is_laying_down(z_axis):
 def autolabeling(time_list,x_list,y_list,z_list):
     """returns label list"""
     label_list = []
+    
     for i in range(0,len(time_list),10):
         partition= min(10,len(time_list)-i)
-        x_lgress = linregress(time_list,x_list[i:partition])
-        y_lgress = linregress(time_list,y_list[i:partition])
-        z_lgress = linregress(time_list,z_list[i:partition])
-        print('xyz slope:',x_lgress,y_lgress,z_lgress)
+        # print('par:',partition)
+        # print(time_list, x_list)
+        # print('pass',time_list[i:partition],x_list[i:i+partition])
+        x_lgress = linregress(time_list[i:i+partition],x_list[i:i+partition])
+        y_lgress = linregress(time_list[i:i+partition],y_list[i:i+partition])
+        z_lgress = linregress(time_list[i:i+partition],z_list[i:i+partition])
+        # print('xyz slope:',x_lgress,y_lgress,z_lgress)
 
-        average_z = numpy.mean(z_list[i:partition])
+        average_z = numpy.mean(z_list[i:i+partition])
         for j in range(partition):
             if is_sitting(average_z):
                 label_list.append('sitting')
@@ -64,6 +68,7 @@ def autolabeling(time_list,x_list,y_list,z_list):
             elif is_standing_or_walking(average_z):
 
                 biggest_slope = max([x_lgress.slope, y_lgress.slope, z_lgress.slope])
+                # print('biggest_slope', biggest_slope)
                 if biggest_slope > MOVEMENT_SLOPE:
                     label_list.append('walking')
                 else:
