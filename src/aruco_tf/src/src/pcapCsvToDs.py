@@ -5,6 +5,12 @@ import pandas
 from datetime import datetime
 import time
 import matplotlib.pyplot as plt
+from scipy.stats import linregress
+
+STANDING_HEIGHT_MIN_M = 1.3 
+LAYING_DOWN_HEIGHT_M = 0.5
+LAYING_DOWN_HEIGHT_M = 0.5
+MOVEMENT_SLOPE = 2
 """
 This code reads the pcapdata csv and write it to a new csv file with the ds_room csv
 compares the ms from both files.
@@ -30,6 +36,45 @@ def time_array_to_float_array(time_array):
         
     return time_array_float
 
+def is_standing_or_walking(z_axis):
+    return z_axis >= STANDING_HEIGHT_MIN_M
+
+def is_sitting(z_axis):
+    return z_axis < STANDING_HEIGHT_MIN_M and z_axis > LAYING_DOWN_HEIGHT_M
+
+def is_laying_down(z_axis):
+    return z_axis <= LAYING_DOWN_HEIGHT_M
+
+def autolabeling(time_list,x_list,y_list,z_list):
+    """returns label list"""
+    label_list = []
+    for i in range(0,len(time_list),10):
+        partition= min(10,len(time_list)-i)
+        x_lgress = linregress(time_list,x_list[i:partition])
+        y_lgress = linregress(time_list,y_list[i:partition])
+        z_lgress = linregress(time_list,z_list[i:partition])
+        print('xyz slope:',x_lgress,y_lgress,z_lgress)
+
+        average_z = numpy.mean(z_list[i:partition])
+        for j in range(partition):
+            if is_sitting(average_z):
+                label_list.append('sitting')
+            elif is_laying_down(average_z):
+                label_list.append('laying_down')
+            elif is_standing_or_walking(average_z):
+
+                biggest_slope = max([x_lgress.slope, y_lgress.slope, z_lgress.slope])
+                if biggest_slope > MOVEMENT_SLOPE:
+                    label_list.append('walking')
+                else:
+                    label_list.append('standing')
+        
+    return label_list
+
+            
+
+    
+    
 
 pcap_csv_data = pd.read_csv("pcapdata.csv")
 pcap_csv_data.columns = ["Timestamp", "finalEntry"]
@@ -40,8 +85,9 @@ print(len(Timelist))
 print(len(Datalist))
 
 
-room_10 = pd.read_csv("ds_room_10.csv")
-room_10.columns = ["Time", "Aruco", "x", "y", "z", "ms", "Lable"]
+room_10 = pd.read_csv("data_room_10.csv")
+# room_10.columns = ["Time", "Aruco", "x", "y", "z", "ms", "Lable"]
+room_10.columns = ["Time", "Lable", "Aruco", "x", "y", "z", "ms"]
 
 all_times_aruco =  room_10["Time"].tolist()
 
@@ -54,14 +100,14 @@ all_times_aruco_float = time_array_to_float_array(all_times_aruco)
 
 # print(xp_time[0],type(fp_x[0]),type(fp_y[0]),type(all_times_aruco[0]))
 print('fp_xf',fp_x)
-input('pause fp')
+# input('pause fp')
 interpolated_data = numpy.interp(xp_time_float,xp_time_float,fp_x)
 print("interpolated:")
 for i in range(len(interpolated_data)):
     print(all_times_aruco[i], interpolated_data[i])
 
 
-input('pause')
+# input('pause')
 tlist = list(room_10.Time)
 mslist = list(room_10.ms)
 idlist = list(room_10.Aruco)
@@ -106,10 +152,11 @@ interpolated_data_z = numpy.interp(Timelist,xp_time_float,fp_z)
 #plot in XY plane
 # plt.plot(interpolated_data_y, interpolated_data_x, '-x',color='g')
 # plt.plot(fp_y, fp_x, 'o',color='r')
-
+print(autolabeling(Timelist, interpolated_data_x, interpolated_data_y, interpolated_data_z))
+input('pause')
 #plot in XZ plane
-# plt.plot(interpolated_data_x, interpolated_data_z, '-x',color='g')
-# plt.plot(fp_x, fp_z, 'o',color='r')
+plt.plot(interpolated_data_x, interpolated_data_z, '-x',color='g')
+plt.plot(fp_x, fp_z, 'o',color='r')
 
 # plt.plot(Timelist, interpolated_data_y, '-x',color='y')
 # plt.plot(Timelist, interpolated_data_z, '-x',color='r')
@@ -117,11 +164,11 @@ interpolated_data_z = numpy.interp(Timelist,xp_time_float,fp_z)
 plt.ticklabel_format(useOffset=False)
 plt.show()
 
-input('pause plot')
+# input('pause plot')
 for i in range(len(Timelist)):
     writer.writerow([Timelist[i],interpolated_data_x[i], interpolated_data_y[i], interpolated_data_z[i],lablelist[i],mslist[i],Datalist[i]])
 
-input('pause')
+# input('pause')
 # for i in range(len(Timelist)):
 #     alreadyEntered = False
 #     for j in range(len(mslist)):
