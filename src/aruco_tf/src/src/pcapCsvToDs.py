@@ -1,15 +1,51 @@
+from numpy.core.numeric import NaN
+import numpy
 import pandas as pd
 import pandas
-
+from datetime import datetime
+import time
 """
 This code reads the pcapdata csv and write it to a new csv file with the ds_room csv
 compares the ms from both files.
 """
 
-data = pd.read_csv("pcapdata.csv")
-data.columns = ["Timestamp", "finalEntry"]
-Timelist = list(data.Timestamp)
-Datalist = list(data.finalEntry)
+def get_xp_and_fp_for_interp(data_frame, colomn_name, return_time = False):
+    """Gives you the xp and fp from the visble aruco position on one dimension (x,y or z) """
+    data_frame_no_nan = data_frame[(data_frame[colomn_name] <= 0) | (data_frame[colomn_name] >= 0)]  #Removes NaN from the data_frame
+    if(not return_time): 
+        return data_frame_no_nan[colomn_name].tolist()
+    else:
+        return data_frame_no_nan["Time"].tolist(), data_frame_no_nan[colomn_name].tolist()
+
+def time_array_to_float_array(time_array):
+    time_array_float = []
+    for element in time_array:
+        time_temp,milisec = element.split(".")
+        # print('milisec',milisec)
+        time_list = time_temp.split(':')
+        # print('time_list',time_list)
+
+        time_array_float.append(int(time_list[0])*3600+int(time_list[1])*60+int(time_list[2])+int(milisec)/1000)
+            
+        
+    return time_array_float
+
+# def leap_second_to_normal_second(t):
+#     nofrag, frag = t.split('.')
+#     nofrag_dt = time.strptime(nofrag, "%H:%M:%S")
+#     ts = datetime.fromtimestamp(time.mktime(nofrag_dt))
+#     print('ts',ts)
+#     dt = ts.replace(microsecond=int(frag))
+
+# def get_nan_time_from_data_frame(data_frame):
+#     """Returns a list of all data frame times with no vislbe aruco"""
+#     only_nan_data_frame = data_frame[(data_frame['x'] <= 0) | (data_frame['x'] >= 0)]#Leaves only NaN from the list 
+#     return only_nan_data_frame[['Time']].to_list()
+
+pcap_csv_data = pd.read_csv("pcapdata.csv")
+pcap_csv_data.columns = ["Timestamp", "finalEntry"]
+Timelist = list(pcap_csv_data.Timestamp)
+Datalist = list(pcap_csv_data.finalEntry)
 
 print(len(Timelist))
 print(len(Datalist))
@@ -17,6 +53,24 @@ print(len(Datalist))
 
 room_10 = pd.read_csv("ds_room_10.csv")
 room_10.columns = ["Time", "Aruco", "x", "y", "z", "ms", "Lable"]
+
+all_times_aruco =  room_10["Time"].tolist()
+
+xp_time, fp_x = get_xp_and_fp_for_interp(room_10,'x',return_time=True)
+fp_y = get_xp_and_fp_for_interp(room_10,'x')
+fp_z = get_xp_and_fp_for_interp(room_10,'x')
+xp_time_float = time_array_to_float_array(xp_time)
+all_times_aruco_float = time_array_to_float_array(all_times_aruco)
+
+
+# print(xp_time[0],type(fp_x[0]),type(fp_y[0]),type(all_times_aruco[0]))
+interpolated_data = numpy.interp(xp_time_float,xp_time_float,fp_x)
+print("interpolated:")
+for i in range(len(interpolated_data)):
+    print(all_times_aruco[i], interpolated_data[i])
+
+
+input('pause')
 tlist = list(room_10.Time)
 mslist = list(room_10.ms)
 idlist = list(room_10.Aruco)

@@ -1,6 +1,7 @@
 
 *.mp4
 *.csv
+*.csv#
 */junk/
 
 # Created by https://www.toptal.com/developers/gitignore/api/visualstudiocode,python

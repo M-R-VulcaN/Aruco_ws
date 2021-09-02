@@ -300,6 +300,7 @@ if __name__ == '__main__':
     cap = cv2.VideoCapture(video)  # vapturing from the video, video - selcted by the user.
     
     # ret, mtx, dist, rvecs, tvecs = calib_camera()
+    
     while(True):
         positions = get_position_from_video(cap, to_draw=True, to_show=True)
 
