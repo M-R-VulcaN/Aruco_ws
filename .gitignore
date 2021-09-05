@@ -4,6 +4,9 @@
 *.csv#
 */junk/
 
+#used for development
+!**data_room_10.csv
+
 # Created by https://www.toptal.com/developers/gitignore/api/visualstudiocode,python
 # Edit at https://www.toptal.com/developers/gitignore?templates=visualstudiocode,python
 
@@ -224,3 +227,4 @@ qtcreator-*
 CATKIN_IGNORE
 
 # End of https://www.toptal.com/developers/gitignore/api/ros
+
