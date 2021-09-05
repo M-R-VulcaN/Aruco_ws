@@ -7,18 +7,20 @@ import time
 import matplotlib.pyplot as plt
 from scipy.stats import linregress
 
-STANDING_HEIGHT_MIN_M = 1.3 
+STANDING_HEIGHT_MIN_M = 0.8
 LAYING_DOWN_HEIGHT_M = 0.5
-LAYING_DOWN_HEIGHT_M = 0.5
+LAYING_DOWN_HEIGHT_M = 0.25
 MOVEMENT_SLOPE = 0.00004
 """
 This code reads the pcapdata csv and write it to a new csv file with the ds_room csv
 compares the ms from both files.
 """
 
+debug_slope_list = ([],[])
+
 def get_xp_and_fp_for_interp(data_frame, colomn_name, return_time = False):
     """Gives you the xp and fp from the visble aruco position on one dimension (x,y or z) """
-    data_frame_no_nan = data_frame[(data_frame[colomn_name] <= 0) | (data_frame[colomn_name] >= 0)]  #Removes NaN from the data_frame
+    data_frame_no_nan = data_frame[(data_frame[colomn_name] <= 0) | (data_frame[colomn_name] >= 0) & (data_frame[colomn_name] != '')]  #Removes NaN from the data_frame
     if(not return_time): 
         return data_frame_no_nan[colomn_name].tolist()
     else:
@@ -28,13 +30,16 @@ def time_array_to_float_array(time_array):
     """Turns an array of strtime into an array containing the milisec-value of the time"""
     time_array_float = []
     for element in time_array:
-        time_temp,milisec = element.split(".") # 00:01:34, 457
-        time_list = time_temp.split(':') # 0, 1, 34
+        time_temp,milisec = element.split(".") # 01:34, 457
+        time_list = time_temp.split(':') # 1, 34
 
-        # 0*3600*1000 + 1*60*1000+ 34*1000 + 457 = 94457 [milisec]       
-        time_array_float.append(int(time_list[0])*3600*1000+int(time_list[1])*60*1000+int(time_list[2])*1000+int(milisec))
+        # 1*60*1000+ 34*1000 + 457 = 94457 [milisec]       
+        time_array_float.append(int(time_list[0])*60*1000+int(time_list[1])*1000+int(milisec))
         
     return time_array_float
+
+def debug_print(lst):
+    print(len(lst), lst[:10])
 
 def is_standing_or_walking(z_axis):
     return z_axis >= STANDING_HEIGHT_MIN_M
@@ -44,6 +49,25 @@ def is_sitting(z_axis):
 
 def is_laying_down(z_axis):
     return z_axis <= LAYING_DOWN_HEIGHT_M
+
+def replace_labels_with_ints(labels):
+    """Returns a list of labels as intigers"""
+    res = []
+    print('labels', len(labels), labels[:10])
+    for label in labels:
+        if label == 'DO_NOT_USE':
+            res.append(0)
+        elif label == 'laying down':
+            res.append(1)
+        elif label == 'sitting':
+            res.append(2)
+        elif label == 'walking':
+            res.append(3)
+        elif label == 'standing':
+            res.append(4)
+        else:
+            res.append(-1)
+    return res
 
 def autolabeling(time_list,x_list,y_list,z_list):
     """returns label list"""
@@ -60,19 +84,26 @@ def autolabeling(time_list,x_list,y_list,z_list):
         # print('xyz slope:',x_lgress,y_lgress,z_lgress)
 
         average_z = numpy.mean(z_list[i:i+partition])
+        
         for j in range(partition):
             if is_sitting(average_z):
                 label_list.append('sitting')
             elif is_laying_down(average_z):
-                label_list.append('laying_down')
+                label_list.append('laying down')
             elif is_standing_or_walking(average_z):
-
-                biggest_slope = max([x_lgress.slope, y_lgress.slope, z_lgress.slope])
+                
+                # biggest_slope = max([x_lgress.slope, y_lgress.slope])
+                amplitude_of_movement_vector = (x_lgress.slope**2 + y_lgress.slope**2)**0.5
+                debug_slope_list[0].append(time_list[i+j])
+                debug_slope_list[1].append(amplitude_of_movement_vector*10000)
                 # print('biggest_slope', biggest_slope)
-                if biggest_slope > MOVEMENT_SLOPE:
+                if amplitude_of_movement_vector > MOVEMENT_SLOPE:
                     label_list.append('walking')
                 else:
                     label_list.append('standing')
+            else:
+                label_list.append('DO_NOT_USE')
+
         
     return label_list
 
@@ -91,8 +122,8 @@ print(len(Datalist))
 
 
 room_10 = pd.read_csv("data_room_10.csv")
-# room_10.columns = ["Time", "Aruco", "x", "y", "z", "ms", "Lable"]
-room_10.columns = ["Time", "Lable", "Aruco", "x", "y", "z", "ms"]
+room_10.columns = ["Time", "Aruco", "x", "y", "z", "ms", "Lable"]
+# room_10.columns = ["Time", "Aruco", "x", "y", "z", "ms",]
 
 all_times_aruco =  room_10["Time"].tolist()
 
@@ -132,7 +163,8 @@ place = 0
 
 import csv 
 print("pcapTime,Time,Aruco,x,y,z,Lable,ms,pcapData")
-file_name = input("\nPlase enter the .csv file name: ")
+# file_name = input("\nPlase enter the .csv file name: ")
+file_name = 'temp.csv'
 file = open(file_name,'w')
 writer = csv.writer(file)
 writer.writerow(['pcapTime','Time','Aruco','x','y','z','Lable','ms','pcapData'])  #writing the first line to the csv file.
@@ -140,6 +172,9 @@ writer.writerow(['pcapTime','Time','Aruco','x','y','z','Lable','ms','pcapData'])
 listCount = []
 print('tp',Timelist[i])
 # timelist_float = time_array_to_float_array(Timelist)
+
+print(len(fp_x), len(fp_y), len(fp_z))
+# input('pasue')
 interpolated_data_x = numpy.interp(Timelist,xp_time_float,fp_x)
 interpolated_data_y = numpy.interp(Timelist,xp_time_float,fp_y)
 interpolated_data_z = numpy.interp(Timelist,xp_time_float,fp_z)
@@ -157,14 +192,43 @@ interpolated_data_z = numpy.interp(Timelist,xp_time_float,fp_z)
 #plot in XY plane
 # plt.plot(interpolated_data_y, interpolated_data_x, '-x',color='g')
 # plt.plot(fp_y, fp_x, 'o',color='r')
-print(autolabeling(Timelist, interpolated_data_x, interpolated_data_y, interpolated_data_z))
+
+manual_labels_int = replace_labels_with_ints(lablelist)
+# print(len(manual_labels_int), manual_labels_int[:10])
+# print(len(xp_time_float), xp_time_float[:10])
+
+
+labels_interp = numpy.interp(Timelist, mslist,manual_labels_int)
+auotlabel_result = replace_labels_with_ints(autolabeling(Timelist, interpolated_data_x, interpolated_data_y, interpolated_data_z))
+
+debug_print(auotlabel_result)
+debug_print(lablelist)
+debug_print(manual_labels_int)
+debug_print(labels_interp)
+
+debug_print(Timelist)
 input('pause')
-#plot in XZ plane
-plt.plot(interpolated_data_x, interpolated_data_z, '-x',color='g')
-plt.plot(fp_x, fp_z, 'o',color='r')
+
+#plot autolabeling
+
+comp = []
+for i in range(len(Timelist)):
+    if auotlabel_result[i] ==labels_interp[i]:
+        comp.append(-2)
+    else:
+        comp.append(-1)
+
+plt.plot(Timelist, auotlabel_result, '-',color='y')
+plt.plot(Timelist, labels_interp, '-',color='g')
+# plt.plot(Timelist, comp, '-',color='r')
+# plt.plot(debug_slope_list[0], debug_slope_list[1], '-',color='r')
+# plt.plot()
+# plot in XZ plane
+# plt.plot(interpolated_data_x, interpolated_data_z, '-x',color='g')
+# plt.plot(fp_x, fp_z, 'o',color='r')
 
 # plt.plot(Timelist, interpolated_data_y, '-x',color='y')
-# plt.plot(Timelist, interpolated_data_z, '-x',color='r')
+plt.plot(Timelist, interpolated_data_z, '-',color='r')
 # plt.plot(t_full, yinterp, '-x')
 plt.ticklabel_format(useOffset=False)
 plt.show()
