@@ -11,6 +11,7 @@ from CSIKit.util.csitools import get_CSI
 from CSIKit.util.filters import bandpass, hampel, running_mean
 from CSIKit.reader import get_reader
 
+room = input("enter room number: ")
 DEFAULT_PATH = input("please enter PCAP file name: ")
 # DEFAULT_PATH = "output.pcap"
 
@@ -33,6 +34,10 @@ if __name__ == "__main__":
         for i in csi_data.timestamps:
             j += 1
             pcTimer = i
+            import time
+
+            pcTimer = time.ctime(pcTimer)
+
             # print(pcTimer)
             timer = (i - csi_data.timestamps[0])*1000
             #1627975155.109669-1627972936.190185       #in order to represent time in ms and not pc time.
@@ -44,13 +49,36 @@ if __name__ == "__main__":
         print("\nfirst pcap data: \n", finalEntry[0])
         if (count != len(csi_data.frames)):
             print("\nempty data first stamp: \n",finalEntry[last+1])
-            # writer.writerow({'pcapData': finalEntry[last]})
-        # print("finished writing timestamps.\nwriting data...")
-        # fd.write(myCsvRow)
-        # for j ,frame in enumerate(finalEntry):
-        #     writer.writerow({'pcapData': finalEntry[j]})
-        # print("finished writing data.")
-
-    # running the pcap fix script
+        
+    print("running pcapCsvToDs...")
+    import pcapCsvToDs
     print("\nrunning the pcap data fix script...")
     import pcapFix
+    print("running placement fix script...")
+    # import replace
+
+    import pandas as pd
+    import numpy as np
+
+        
+    df = pd.read_csv("dataset_fixed.csv")
+    print(df.columns)
+
+    lablesArr = df.columns
+
+    print(len(lablesArr))
+
+    newList = []
+
+    newList.append(lablesArr[0])
+    newList.extend(lablesArr[7:])
+    newList.append(lablesArr[5])
+    newList.extend(lablesArr[2:5])
+    newList.append(lablesArr[1])
+    newList.append(lablesArr[6])
+
+    df = df[newList]
+
+    print(df)
+
+    df.to_csv(r'Results/dataset_room_'+ room + '.csv', index = False, header = True)
