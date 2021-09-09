@@ -19,6 +19,9 @@ import tf_conversions
 from tf.transformations import euler_from_quaternion, quaternion_from_euler, quaternion_multiply
 results_filtered=0
 
+# human_ids = [0, 101, 1, 100]
+floor_ids = [102, 103, 104]
+
 if __name__ == '__main__':
     rospy.init_node('publish_wc', anonymous=False)
     pub = rospy.Publisher('results_array', Float64MultiArray, queue_size=10)
@@ -29,22 +32,26 @@ if __name__ == '__main__':
 
     br = tf2_ros.TransformBroadcaster()
 
-    r=rospy.Rate(40)   # 100 Hz???????
+    r=rospy.Rate(40)
 
-    num_of_markers=3  # 102,103,104
+    # num_of_markers=3  # 102,103,104 
+    num_of_markers = len(floor_ids)
+
     results=np.zeros((num_of_markers,6))
 
-    last_translation = np.zeros((num_of_markers+2,3))
+    # last_translation = np.zeros((num_of_markers+2,3))
+    last_translation = np.zeros((num_of_markers,3))
 
     while not rospy.is_shutdown():
         r.sleep()
         results=np.zeros((1,6))
         weighted_sum = np.array(0.0)
-
-        for num in range(2, num_of_markers+2):
-            
+        
+        # for num in range(2, num_of_markers+2):
+        for num in floor_ids:    
             try:
-                transform_lc = tfBuffer.lookup_transform("cam_loc_10"+str(num),"aruco_10"+str(num), rospy.Time(0))
+                # transform_lc = tfBuffer.lookup_transform("cam_loc_10"+str(num),"aruco_10"+str(num), rospy.Time(0))
+                transform_lc = tfBuffer.lookup_transform("cam_loc_"+str(num),"aruco_"+str(num), rospy.Time(0))
 
                 x=transform_lc.transform.translation.x
                 y=transform_lc.transform.translation.y
@@ -62,14 +69,17 @@ if __name__ == '__main__':
             # print (curr_translation , "  " , last_translation[num])
 
 
-            last_translation[num]=curr_translation
+            # last_translation[num]=curr_translation #here
+            # last_translation[num]=curr_translation 
+
             distance = np.linalg.norm(curr_translation)
             weight = 1 # / distance    #TEMP - EACH WEIGHT IS EQUAL
             # print("dist = " , distance ,"weight = ", weight)
             # print("weight = " , weight)
 
             try: 
-                transform_wc = tfBuffer.lookup_transform("room_link", "cam_loc_10"+str(num), rospy.Time(0))
+                # transform_wc = tfBuffer.lookup_transform("room_link", "cam_loc_10"+str(num), rospy.Time(0))
+                transform_wc = tfBuffer.lookup_transform("room_link", "cam_loc_"+str(num), rospy.Time(0))
                 qx = transform_wc.transform.rotation.x
                 qy = transform_wc.transform.rotation.y
                 qz = transform_wc.transform.rotation.z
@@ -123,14 +133,32 @@ if __name__ == '__main__':
             reliability.data = weighted_sum * factor 
             rel_pub.publish(reliability)
 
-            # pose = PoseStamped()
-            # pose.header.stamp = rospy.Time.now()
-            # pose.header.frame_id = "world"
-            # pose.pose.position.x = results[0]
-            # pose.pose.position.y = results[1]
-            # pose.pose.position.z = results[2]
-            # pose.pose.orientation.x = q[0]
-            # pose.pose.orientation.y = q[1]
-            # pose.pose.orientation.z = q[2]
-            # pose.pose.orientation.w = q[3]
-            # pose_pub.publish(pose)
+        # for num in human_ids:
+        #     try: 
+        #         human_wc = tfBuffer.lookup_transform("room_link", "human_loc"+str(num), rospy.Time(0))
+        #         qx = human_wc.transform.rotation.x
+        #         qy = human_wc.transform.rotation.y
+        #         qz = human_wc.transform.rotation.z
+        #         qw = human_wc.transform.rotation.w
+        #         x=human_wc.transform.translation.x
+        #         y=human_wc.transform.translation.y
+        #         z=human_wc.transform.translation.z
+
+        #         t = geometry_msgs.msg.TransformStamped()
+        #         t.header.stamp = rospy.Time.now()
+        #         t.header.frame_id = "room_link"
+        #         t.child_frame_id = "human_loc"
+        #         t.transform.rotation.x = qx
+        #         t.transform.rotation.y = qy
+        #         t.transform.rotation.z = qz
+        #         t.transform.rotation.w = qw
+        #         t.transform.translation.x =x
+        #         t.transform.translation.y = y
+        #         t.transform.translation.z = z
+        #         br.sendTransform(t)
+        #     except Exception as e:
+        #         rospy.loginfo(e)
+        #     continue
+           
+
+
