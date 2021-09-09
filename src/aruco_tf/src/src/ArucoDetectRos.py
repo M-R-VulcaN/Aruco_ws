@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from __future__ import division  #in order to be able to set the (1/30)
 """
 Framework   : OpenCV Aruco
 Description : Calibration of camera and using that for finding pose of multiple markers
@@ -27,13 +28,18 @@ import pickle
 import glob
 import cv2
 import cv2.aruco as aruco
+import csv
+import tf2_ros
 
 calib_path_param = '/home/makeruser/wifi-Project/Aruco_Tracker/images/for_calib/*.jpg'  ########## AMIR -> change these images and location
 aruco_dict_param = aruco.DICT_4X4_250 ########## AMIR -> this work for https://chev.me/arucogen/
 marker_length = 0.19 # meters
 
-floor_ids = [101,102]
-human_ids = [100, 105]
+# floor_ids = [101,102]
+# human_ids = [100, 105]
+floor_ids = [102, 103, 104]
+human_ids = [0, 101, 1, 100]
+countz = 0
 
 ####---------------------- CALIBRATION ---------------------------
 def calib_camera(calib_path=calib_path_param):
@@ -88,14 +94,17 @@ def get_position_from_single_aruco(rvec, tvec, ids):
     
     quat=tr.quaternion_from_matrix(rot_mat_cam2obj_padded) #obtain the cam-to-object quaternion rotation indices
 
+    # translate = np.dot(rot_mat_cam2obj, tvec[0])  # rotate the translation vector
     translate = np.dot(-1 * rot_mat_cam2obj, tvec[0])  # rotate the translation vector
 
     br.sendTransform((translate),(quat),rospy.Time.now(),"cam_loc_"+ str(ids[0]),"aruco_"+str(ids[0])) #publish the transformation for this tag
 
     return translate
 
-def get_my_position_from_single_aruco(rvec, tvec, ids):
+
+def get_human_position_from_single_aruco(rvec, tvec, ids): #without transposing
     # draw axis for the aruco markers
+
     rot_mat_obj2cam, _ = cv2.Rodrigues(rvec)
     rot_mat_cam2obj = rot_mat_obj2cam  # transpose the object-to-cam rotation matrix to get cam-to-object  //REMOVED .T
     # add padding to the rotation matrix to get dim(4,4)
@@ -106,11 +115,32 @@ def get_my_position_from_single_aruco(rvec, tvec, ids):
     quat=tr.quaternion_from_matrix(rot_mat_cam2obj_padded) #obtain the cam-to-object quaternion rotation indices
     
     translate = tvec[0] #np.dot( rot_mat_cam2obj, tvec[0])  # rotate the translation vector
-    
-    br.sendTransform((translate),(quat),rospy.Time.now(),"human_loc_"+ str(ids[0]),"cam_loc_"+str(floor_ids[0])) #publish the transformation for this tag
+    print(translate)
+    print(type(translate))
+    br.sendTransform((translate),(quat),rospy.Time.now(),"human_loc_"+ str(ids[0]),"cam_weighted") #publish the transformation for this tag
+    time.sleep(0.001)
 
-    #print('{:.2f}, {:.2f}, {:.2f}'.format(translate[0], translate[1], translate[2]))
+    # print('{:.2f}, {:.2f}, {:.2f}'.format(translate[0], translate[1], translate[2]))
+    try:
+        # now = rospy.Time.now()
+        # listener.waitForTransform("/turtle2", "/carrot1", now, rospy.Duration(4.0))
+        # (trans,rot) = listener.lookupTransform("/turtle2", "/carrot1", now)
+        transform_wc = tfBuffer.lookup_transform("room_link", "human_loc_"+str(ids[0]), rospy.Time())
+        x=transform_wc.transform.translation.x
+        y=transform_wc.transform.translation.y
+        z=transform_wc.transform.translation.z
+        return np.array((x,y,z))
+    except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
+        pass
 
+    # transform_wc = tfBuffer.lookup_transform("room_link", "human_loc_"+str(ids[0]), rospy.Duration(1))
+
+    # qx = transform_wc.transform.rotation.x
+    # qy = transform_wc.transform.rotation.y
+    # qz = transform_wc.transform.rotation.z
+    # qw = transform_wc.transform.rotation.w
+
+    # return np.array((x,y,z))
     return translate
 
 def save_load_calib(mtx=None, dist=None, save_calib=False):
@@ -162,14 +192,14 @@ def get_position_from_image(frame, to_draw=False, to_show=False, mtx=None, dist=
 
 
         for i in range(0, ids.size):
-            # floor ids
-            if(ids[i] in floor_ids):
+
+            if(ids[i] in floor_ids):    # floor ids
                 pos = get_position_from_single_aruco(rvec[i], tvec[i], ids[i])
-            #human ids -> without transpose
-            elif(ids[i] in human_ids):
-                pos = get_my_position_from_single_aruco(rvec[i], tvec[i], ids[i])
-            #unknown ids -> same as floor ids
-            else:
+
+            elif(ids[i] in human_ids):   #human ids -> without transpose
+                pos = get_human_position_from_single_aruco(rvec[i], tvec[i], ids[i])
+            
+            else:   #unknown ids -> same as floor ids
                 pos = get_position_from_single_aruco(rvec[i], tvec[i], ids[i])
 
             positions.append([ids[i], pos])
@@ -194,6 +224,7 @@ def get_position_from_image(frame, to_draw=False, to_show=False, mtx=None, dist=
                 else:
                     strg += str(ids[i][0])+': Undefined ' + '[{:.2f}, {:.2f}, {:.2f}]\n'.format(positions[i][1][0], positions[i][1][1], positions[i][1][2])
 
+            # an calculatioin to display all the id's properly on the screen 
             for x, line in enumerate(strg.split('\n')[:-1]):
                 y = y0 + x*dy
                 cv2.putText(frame, "Id " + line, (0, y), font, 0.6, (0, 255, 0), 2, cv2.LINE_AA)
@@ -222,31 +253,97 @@ def get_position_from_video(cap, to_draw=False, to_show=False, mtx=None, dist=No
     return positions
 
 
+def get_user_choise():
+    select = input("1 - Use Camera(usb port 0).\n2 - Use Recored Video\n\nSelect Your Choise: ")
+    # select = 2
+    if(select == 1): # uses the camera as an input.
+        video = 0
+    elif(select == 2): #uses an already recoreded video.
+        video = raw_input("\nPlease enter the video name (has to be in the code folder): ")
+        # video = '10.mp4'
+    else:  #wrong input - will cause a break.
+        print("\n------\nerror! please select an option from the options above!\n------\n")
+        return -1
+    
+    # creating and opening a csv file.
+    file_name = raw_input("\nPlase enter the .csv file name: ")
+    # file_name = '1.csv'
+    file = open(file_name,'w')
+    
+    return file,video
+
+
+def time_stamp(count):
+    # in order to create a user friendly time.
+    count += 1/30   # because we were filming in 30 fps (1/30).
+
+    hours = (count/60)/60
+    minutes = count/60
+    seconds = count % 60
+    ms = count*1000
+
+    timeCount = "%02d:%02d:%.3f" % (hours, minutes, seconds)
+    return count,timeCount,ms
+
+
 if __name__ == '__main__':
 
 
     #ret, mtx, dist, rvecs, tvecs = calib_camera()
     #save_load_calib(mtx=mtx, dist=dist, save_calib=True)
     #time.sleep(1000)
+    count = 0
+    frameCount = 0
+    alreadywritten = False
+
+    file,video = get_user_choise()
+    # file = 'file.csv'    # csv file.
+    # video = 0            # getting video from camera.
+    # video = '10.mp4'     # getting video from recorded video.
     
+    writer = csv.writer(file)
+    writer.writerow(['Time:','Lable:','Aruco ID','x','y','z','ms'])  #writing the first line to the csv file.
+
     rospy.init_node('arucoDetect')
     br = tf.TransformBroadcaster()
     time.sleep(1)
+    tfBuffer = tf2_ros.Buffer()
+    listener = tf2_ros.TransformListener(tfBuffer)
     
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(video)  # vapturing from the video, video - selcted by the user.
+    
     # ret, mtx, dist, rvecs, tvecs = calib_camera()
+    
     while(True):
         positions = get_position_from_video(cap, to_draw=True, to_show=True)
-        for pos in positions:
-            if pos[0][0] in floor_ids:
-                print('{}: Floor [{:.2f}, {:.2f}, {:.2f}]'.format(pos[0][0], pos[1][0], pos[1][1], pos[1][2]))
-            elif pos[0][0] in human_ids:
-                print('{}: Human [{:.2f}, {:.2f}, {:.2f}]'.format(pos[0][0], pos[1][0], pos[1][1], pos[1][2]))
-            else:
-                print('{}: Undefined [{:.2f}, {:.2f}, {:.2f}]'.format(pos[0][0], pos[1][0], pos[1][1], pos[1][2]))
-        print("-------------------------------")
-        
 
+        count,timeCount,ms = time_stamp(count)  #creating a user friendly time and writing it to the csv.
+
+        for pos in positions:
+            if pos[0][0] in floor_ids:    # recognized as a floor id's  
+                print('{}: Floor [{:.2f}, {:.2f}, {:.2f}]'.format(pos[0][0], pos[1][0], pos[1][1], pos[1][2]))
+                
+            elif pos[0][0] in human_ids:    # recognized as a human id's 
+                print('{}: Human [{:.2f}, {:.2f}, {:.2f}]'.format(pos[0][0], pos[1][0], pos[1][1], pos[1][2]))
+                writer.writerow([timeCount,'',pos[0][0],'{:.2f}'.format(pos[1][0]),'{:.2f}'.format(pos[1][1]),'{:.2f}'.format(pos[1][2]),ms])
+                                # ['Time:','Lable:','Aruco ID','x','y','z']   >> writes to the csv file in this format.
+                alreadywritten = True # setting it to prevent duplicates.
+            else:   # recognized id but undefined id
+                print('{}: Undefined [{:.2f}, {:.2f}, {:.2f}]'.format(pos[0][0], pos[1][0], pos[1][1], pos[1][2]))
+
+        # in order to write the timestamp to the csv file even if non of the ids got recognized.
+        # alreadywritten parameter should be false if human id NOT recognized.
+        if(alreadywritten == False):
+            writer.writerow([timeCount,'','','','','',ms]) # write the user friendly time to the csv file and ms.
+        else:                # time lable id x  y  z  ms
+            alreadywritten = False
+
+        frameCount += 1
+
+        print("-------------------------------")
+        print("time: " + timeCount + "\n")
+        # print("frames: " , frameCount, "ms = ", ms)
+        print("video fps: ", frameCount/count)
     # When everything done, release the capture
     cap.release()
     cv2.destroyAllWindows()
