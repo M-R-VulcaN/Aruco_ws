@@ -17,7 +17,8 @@
 		<node pkg ="tf" type="static_transform_publisher" name="aruco_102" args="-0.91  -3.43  0 0 0 0 room_link aruco_102 50" />
 		<node pkg ="tf" type="static_transform_publisher" name="aruco_103" args="-3.45  -2.85  0 0 0 0 room_link aruco_103 50" />
 		<node pkg ="tf" type="static_transform_publisher" name="aruco_104" args="-3.03  -3.63  0 0 0 0 room_link aruco_104 50" />
-		<node pkg ="tf" type="static_transform_publisher" name="cam_weighted" args="-3.13105283598714  -6.947263052920278  2.3812413875782754 -0.8360011644107607 0.24041886809645363 -0.1491344372973932 0.4701699060755188 room_link cam_weighted 50" />
+		<!--node pkg ="tf" type="static_transform_publisher" name="cam_weighted" args="-3.13105283598714  -6.947263052920278  2.3812413875782754 -0.8360011644107607 0.24041886809645363 -0.1491344372973932 0.4701699060755188 room_link cam_weighted 50" /-->
+		<!--node pkg ="tf" type="static_transform_publisher" name="cam_weighted" args="-3.24  -6.1  -2.0 -0.8360011644107607 0.24041886809645363 -0.1491344372973932 0.4701699060755188 room_link cam_weighted 50" /-->
 		<!--                                                        name                 x                     y                   z                   qx                  qy                  qz                  qw                                  -->
 	</group> 
 

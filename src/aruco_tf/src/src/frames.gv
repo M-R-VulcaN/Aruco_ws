@@ -1,0 +1,9 @@
+digraph G {
+"room_link" -> "aruco_104"[label="Broadcaster: /aruco_104\nAverage rate: 20.146 Hz\nMost recent transform: 1631187135.369 ( -0.021 sec old)\nBuffer length: 4.914 sec\n"];
+"room_link" -> "aruco_103"[label="Broadcaster: /aruco_103\nAverage rate: 20.152 Hz\nMost recent transform: 1631187135.350 ( -0.002 sec old)\nBuffer length: 4.863 sec\n"];
+"room_link" -> "aruco_102"[label="Broadcaster: /aruco_102\nAverage rate: 20.154 Hz\nMost recent transform: 1631187135.350 ( -0.002 sec old)\nBuffer length: 4.863 sec\n"];
+edge [style=invis];
+ subgraph cluster_legend { style=bold; color=black; label ="view_frames Result";
+"Recorded at time: 1631187135.348"[ shape=plaintext ] ;
+ }->"room_link";
+}

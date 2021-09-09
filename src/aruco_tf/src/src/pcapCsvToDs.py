@@ -83,10 +83,10 @@ def autolabeling(time_list,x_list,y_list,z_list):
 
 pcap_csv_data = pd.read_csv("pcapdata.csv")
 pcap_csv_data.columns = ["Timestamp", "finalEntry"]
-Timelist = list(pcap_csv_data.Timestamp)
+pcap_timestamps = list(pcap_csv_data.Timestamp)
 Datalist = list(pcap_csv_data.finalEntry)
 
-print(len(Timelist))
+print(len(pcap_timestamps))
 print(len(Datalist))
 
 
@@ -123,7 +123,7 @@ lablelist = list(room_10.Lable)
 
 print(len(mslist))
 print(mslist[0])
-print(Timelist[0])
+print(pcap_timestamps[0])
 
 
 count = -1
@@ -135,14 +135,14 @@ print("pcapTime,Time,Aruco,x,y,z,Lable,ms,pcapData")
 file_name = input("\nPlase enter the .csv file name: ")
 file = open(file_name,'w')
 writer = csv.writer(file)
-writer.writerow(['pcapTime','Time','Aruco','x','y','z','Lable','ms','pcapData'])  #writing the first line to the csv file.
+writer.writerow(['pcapTime', 'Aruco','x','y','z','Lable','ms','pcapData'])  #writing the first line to the csv file.
 
 listCount = []
-print('tp',Timelist[i])
+print('tp',pcap_timestamps[i])
 # timelist_float = time_array_to_float_array(Timelist)
-interpolated_data_x = numpy.interp(Timelist,xp_time_float,fp_x)
-interpolated_data_y = numpy.interp(Timelist,xp_time_float,fp_y)
-interpolated_data_z = numpy.interp(Timelist,xp_time_float,fp_z)
+interpolated_data_x = numpy.interp(pcap_timestamps,xp_time_float,fp_x)
+interpolated_data_y = numpy.interp(pcap_timestamps,xp_time_float,fp_y)
+interpolated_data_z = numpy.interp(pcap_timestamps,xp_time_float,fp_z)
 
 # t_full=np.linspace(0, 9, 10)
 # t_no_nans = [0,1,2,3,6,7,8,9]
@@ -155,13 +155,13 @@ interpolated_data_z = numpy.interp(Timelist,xp_time_float,fp_z)
 # plt.plot(Timelist, interpolated_data_x, '-x',color='g')
 
 #plot in XY plane
-# plt.plot(interpolated_data_y, interpolated_data_x, '-x',color='g')
-# plt.plot(fp_y, fp_x, 'o',color='r')
-print(autolabeling(Timelist, interpolated_data_x, interpolated_data_y, interpolated_data_z))
+plt.plot(interpolated_data_y, interpolated_data_x, '-x',color='g')
+plt.plot(fp_y, fp_x, 'o',color='r')
+print(autolabeling(pcap_timestamps, interpolated_data_x, interpolated_data_y, interpolated_data_z))
 input('pause')
 #plot in XZ plane
-plt.plot(interpolated_data_x, interpolated_data_z, '-x',color='g')
-plt.plot(fp_x, fp_z, 'o',color='r')
+# plt.plot(interpolated_data_x, interpolated_data_z, '-x',color='g')
+# plt.plot(fp_x, fp_z, 'o',color='r')
 
 # plt.plot(Timelist, interpolated_data_y, '-x',color='y')
 # plt.plot(Timelist, interpolated_data_z, '-x',color='r')
@@ -170,46 +170,10 @@ plt.ticklabel_format(useOffset=False)
 plt.show()
 
 # input('pause plot')
-for i in range(len(Timelist)):
-    writer.writerow([Timelist[i],interpolated_data_x[i], interpolated_data_y[i], interpolated_data_z[i],lablelist[i],mslist[i],Datalist[i]])
+for i in range(len(pcap_timestamps)):
+    writer.writerow([pcap_timestamps[i], round(interpolated_data_x[i], 2), round(interpolated_data_y[i], 2), round(interpolated_data_z[i], 2),lablelist[i],mslist[i],Datalist[i]])
 
-# input('pause')
-# for i in range(len(Timelist)):
-#     alreadyEntered = False
-#     for j in range(len(mslist)):
-#         if(alreadyEntered == False):
-#             if (mslist[j] == Timelist[i]):
-#                 # print(Timelist[i], "               ", mslist[j])
-#                 print(j, Timelist[i], tlist[j], idlist[j], xlist[j], ylist[j], zlist[j], lablelist[j], mslist[j]) #pcapdatalist[i]
-#                 writer.writerow([Timelist[i], tlist[j], idlist[j], xlist[j], ylist[j], zlist[j], lablelist[j], mslist[j], Datalist[i]])
-#                 #            "pcapTime,Time,Aruco ID,x,y,z,Lable,ms,pcapData"
-#                 alreadyEntered = True
-#                 count += 1
-#                 listCount.extend([j])           
-#             #         102         104
-#             elif (Timelist[i] < mslist[j]):
-#                 #       104         102        102            101
-#                 if(mslist[j] - Timelist[i] > Timelist[i] - mslist[j - 1]): #            
-#                     # print(Timelist[i], "            ", mslist[j - 1], "           ", Timelist[i] - mslist[j - 1], "                1")
-#                     print(j, Timelist[i], tlist[j-1], idlist[j-1], xlist[j-1], ylist[j-1], zlist[j-1], lablelist[j-1], mslist[j-1]) #pcapdatalist[i]
-#                     writer.writerow([Timelist[i], tlist[j-1], idlist[j-1], xlist[j-1], ylist[j-1], zlist[j-1], lablelist[j-1], mslist[j-1], Datalist[i]])
-#                 else:
-#                     # print(Timelist[i], "            ", mslist[j], "           ", mslist[j] - Timelist[i],  "                2")
-#                     print(j, Timelist[i], tlist[j], idlist[j], xlist[j], ylist[j], zlist[j], lablelist[j], mslist[j]) #pcapdatalist[i]
-#                     writer.writerow([Timelist[i], tlist[j], idlist[j], xlist[j], ylist[j], zlist[j], lablelist[j], mslist[j], Datalist[i]])
-#                 alreadyEntered = True
-#                 count += 1
-#                 place = j
-#                 listCount.extend([j]) 
-#             else:
-#                 pass
-#         else:
-#             pass
-    
-#     if (count != i):
-#         print(j, Timelist[i], tlist[j], idlist[j], xlist[j], ylist[j], zlist[j], lablelist[j], mslist[j]) #pcapdatalist[i]
-#         writer.writerow([Timelist[i], Timelist[i], idlist[j], xlist[j], ylist[j], zlist[j], lablelist[j], Timelist[i], Datalist[i]])
 
-print(len(Timelist))
+print(len(pcap_timestamps))
 
 

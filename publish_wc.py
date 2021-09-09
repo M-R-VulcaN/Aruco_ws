@@ -20,6 +20,7 @@ from tf.transformations import euler_from_quaternion, quaternion_from_euler, qua
 results_filtered=0
 
 human_ids = [0, 101, 1, 100]
+floor_ids = [102, 103, 104]
 
 if __name__ == '__main__':
     rospy.init_node('publish_wc', anonymous=False)
@@ -31,22 +32,26 @@ if __name__ == '__main__':
 
     br = tf2_ros.TransformBroadcaster()
 
-    r=rospy.Rate(40)   # 100 Hz???????
+    r=rospy.Rate(40)
 
     num_of_markers=3  # 102,103,104 
+    # num_of_markers = len(floor_ids)
+
     results=np.zeros((num_of_markers,6))
 
     last_translation = np.zeros((num_of_markers+2,3))
+    # last_translation = np.zeros((num_of_markers,3))
 
     while not rospy.is_shutdown():
         r.sleep()
         results=np.zeros((1,6))
         weighted_sum = np.array(0.0)
-
+        
         for num in range(2, num_of_markers+2):
-            
+        # for num in floor_ids:    
             try:
                 transform_lc = tfBuffer.lookup_transform("cam_loc_10"+str(num),"aruco_10"+str(num), rospy.Time(0))
+                # transform_lc = tfBuffer.lookup_transform("cam_loc_"+str(num),"aruco_"+str(num), rospy.Time(0))
 
                 x=transform_lc.transform.translation.x
                 y=transform_lc.transform.translation.y
@@ -72,6 +77,7 @@ if __name__ == '__main__':
 
             try: 
                 transform_wc = tfBuffer.lookup_transform("room_link", "cam_loc_10"+str(num), rospy.Time(0))
+                # transform_wc = tfBuffer.lookup_transform("room_link", "cam_loc_"+str(num), rospy.Time(0))
                 qx = transform_wc.transform.rotation.x
                 qy = transform_wc.transform.rotation.y
                 qz = transform_wc.transform.rotation.z

@@ -39,6 +39,7 @@ marker_length = 0.19 # meters
 # human_ids = [100, 105]
 floor_ids = [102, 103, 104]
 human_ids = [0, 101, 1, 100]
+countz = 0
 
 ####---------------------- CALIBRATION ---------------------------
 def calib_camera(calib_path=calib_path_param):
@@ -100,6 +101,7 @@ def get_position_from_single_aruco(rvec, tvec, ids):
 
     return translate
 
+
 def get_human_position_from_single_aruco(rvec, tvec, ids): #without transposing
     # draw axis for the aruco markers
 
@@ -117,18 +119,26 @@ def get_human_position_from_single_aruco(rvec, tvec, ids): #without transposing
     print(type(translate))
     br.sendTransform((translate),(quat),rospy.Time.now(),"human_loc_"+ str(ids[0]),"cam_weighted") #publish the transformation for this tag
     time.sleep(0.001)
-    #print('{:.2f}, {:.2f}, {:.2f}'.format(translate[0], translate[1], translate[2]))
-    transform_wc = tfBuffer.lookup_transform("room_link", "human_loc_"+str(ids[0]), rospy.Time(0))
+
+    # print('{:.2f}, {:.2f}, {:.2f}'.format(translate[0], translate[1], translate[2]))
+    try:
+        transform_wc = tfBuffer.lookup_transform("room_link", "human_loc_"+str(ids[0]), rospy.Time())
+        x=transform_wc.transform.translation.x
+        y=transform_wc.transform.translation.y
+        z=transform_wc.transform.translation.z
+        return np.array((x,y,z))
+    except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
+        pass
+
+    # transform_wc = tfBuffer.lookup_transform("room_link", "human_loc_"+str(ids[0]), rospy.Duration(1))
+
     # qx = transform_wc.transform.rotation.x
     # qy = transform_wc.transform.rotation.y
     # qz = transform_wc.transform.rotation.z
     # qw = transform_wc.transform.rotation.w
-    x=transform_wc.transform.translation.x
-    y=transform_wc.transform.translation.y
-    z=transform_wc.transform.translation.z
-    
-    
-    return np.array((x,y,z))
+
+    # return np.array((x,y,z))
+    return translate
 
 def save_load_calib(mtx=None, dist=None, save_calib=False):
     if save_calib and mtx is not None and dist is not None:
@@ -254,7 +264,7 @@ def get_user_choise():
     
     # creating and opening a csv file.
     file_name = raw_input("\nPlase enter the .csv file name: ")
-    # file_name = '123121.csv'
+    # file_name = '1.csv'
     file = open(file_name,'w')
     
     return file,video
