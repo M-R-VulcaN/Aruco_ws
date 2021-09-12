@@ -11,6 +11,7 @@ STANDING_HEIGHT_MIN_M = 0.8
 LAYING_DOWN_HEIGHT_M = 0.5
 LAYING_DOWN_HEIGHT_M = 0.25
 MOVEMENT_SLOPE = 0.00004
+DO_NOT_USE_TIME_GAP_MILLIS = 10000
 """
 This code reads the pcapdata csv and write it to a new csv file with the ds_room csv
 compares the ms from both files.
@@ -69,11 +70,34 @@ def replace_labels_with_ints(labels):
             res.append(-1)
     return res
 
-def autolabeling(time_list,x_list,y_list,z_list):
-    """returns label list"""
-    label_list = []
+def get_do_not_use_labels(time_list, original_time_aruco):
+    res = []
+    i = 0
+    j = 0
+    # print(tim)
+    while len(time_list) < i and len(original_time_aruco) < j:
+        if original_time_aruco[j]-DO_NOT_USE_TIME_GAP_MILLIS<= time_list[i] <= original_time_aruco[j]+DO_NOT_USE_TIME_GAP_MILLIS:
+            res.append(None)
+        elif original_time_aruco[j]-DO_NOT_USE_TIME_GAP_MILLIS > time_list[i]:
+            res.append('DO_NOT_USE')
+        if original_time_aruco[j]+DO_NOT_USE_TIME_GAP_MILLIS < time_list[i]:
+            j+=1
+        else:
+            i+=1
+    print('time_list:')
+    debug_print(time_list)
+    print('original_time_aruco:')
+    debug_print(original_time_aruco)
+    return res
     
-    for i in range(0,len(time_list),10):
+
+
+def autolabeling(time_list,x_list,y_list,z_list,original_time_aruco):
+    """returns label list"""
+    label_list = get_do_not_use_labels(time_list, original_time_aruco)
+
+
+    for i in range(0,len(label_list),10):
         partition= min(10,len(time_list)-i)
         # print('par:',partition)
         # print(time_list, x_list)
@@ -86,10 +110,12 @@ def autolabeling(time_list,x_list,y_list,z_list):
         average_z = numpy.mean(z_list[i:i+partition])
         
         for j in range(partition):
+            if label_list[i+j] != None:
+                continue
             if is_sitting(average_z):
-                label_list.append('sitting')
+                label_list[i+j] = 'sitting'
             elif is_laying_down(average_z):
-                label_list.append('laying down')
+                label_list[i+j] = 'laying down'
             elif is_standing_or_walking(average_z):
                 
                 # biggest_slope = max([x_lgress.slope, y_lgress.slope])
@@ -98,11 +124,11 @@ def autolabeling(time_list,x_list,y_list,z_list):
                 debug_slope_list[1].append(amplitude_of_movement_vector*10000)
                 # print('biggest_slope', biggest_slope)
                 if amplitude_of_movement_vector > MOVEMENT_SLOPE:
-                    label_list.append('walking')
+                    label_list[i+j] = 'walking'
                 else:
-                    label_list.append('standing')
+                    label_list[i+j] = 'standing'
             else:
-                label_list.append('DO_NOT_USE')
+                label_list[i+j] = 'DO_NOT_USE'
 
         
     return label_list
@@ -200,7 +226,7 @@ manual_labels_int = replace_labels_with_ints(lablelist)
 
 
 labels_interp = numpy.interp(Timelist, mslist,manual_labels_int)
-auotlabel_result = replace_labels_with_ints(autolabeling(Timelist, interpolated_data_x, interpolated_data_y, interpolated_data_z))
+auotlabel_result = replace_labels_with_ints(autolabeling(Timelist, interpolated_data_x, interpolated_data_y, interpolated_data_z,xp_time_float))
 
 debug_print(auotlabel_result)
 debug_print(lablelist)
