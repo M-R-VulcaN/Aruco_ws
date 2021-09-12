@@ -5,7 +5,7 @@ This code read the lable csv file and add those lables to the ds_room csv file
 """
 
 data = intervaltree.IntervalTree()
-res_file = open("ree.csv", "w")
+res_file = open("0.csv", "w")
 tofill = open("ds_room_10.csv", "r").read()
 data_container = open("testttt.csv", "r").read()
 

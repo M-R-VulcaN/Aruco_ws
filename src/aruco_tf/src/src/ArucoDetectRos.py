@@ -299,7 +299,7 @@ if __name__ == '__main__':
     # video = '10.mp4'     # getting video from recorded video.
     
     writer = csv.writer(file)
-    writer.writerow(['Time:','Lable:','Aruco ID','x','y','z','ms'])  #writing the first line to the csv file.
+    writer.writerow(['Time:','x','y','z','ms'])  #writing the first line to the csv file.
 
     rospy.init_node('arucoDetect')
     br = tf.TransformBroadcaster()
@@ -322,7 +322,7 @@ if __name__ == '__main__':
                 
             elif pos[0][0] in HUMAN_IDS:    # recognized as a human id's 
                 print('{}: Human [{:.2f}, {:.2f}, {:.2f}]'.format(pos[0][0], pos[1][0], pos[1][1], pos[1][2]))
-                writer.writerow([timeCount,'',pos[0][0],'{:.2f}'.format(pos[1][0]),'{:.2f}'.format(pos[1][1]),'{:.2f}'.format(pos[1][2]),ms])
+                writer.writerow([timeCount, '{:.2f}'.format(pos[1][0]),'{:.2f}'.format(pos[1][1]),'{:.2f}'.format(pos[1][2]),ms])
                                 # ['Time:','Lable:','Aruco ID','x','y','z']   >> writes to the csv file in this format.
                 alreadywritten = True # setting it to prevent duplicates.
             else:   # recognized id but undefined id
@@ -331,7 +331,7 @@ if __name__ == '__main__':
         # in order to write the timestamp to the csv file even if non of the ids got recognized.
         # alreadywritten parameter should be false if human id NOT recognized.
         if(alreadywritten == False):
-            writer.writerow([timeCount,'','','','','',ms]) # write the user friendly time to the csv file and ms.
+            writer.writerow([timeCount,'','','',ms]) # write the user friendly time to the csv file and ms.
         else:                # time lable id x  y  z  ms
             alreadywritten = False
 

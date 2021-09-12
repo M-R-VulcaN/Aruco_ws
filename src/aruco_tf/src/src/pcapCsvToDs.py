@@ -149,7 +149,7 @@ print(len(Datalist))
 
 
 room_10 = pd.read_csv("0.csv")
-room_10.columns = ["Time", "Aruco", "x", "y", "z", "ms", "Lable"]
+room_10.columns = ["Time", "x", "y", "z", "ms", "Lable"]
 # room_10.columns = ["Time", "Aruco", "x", "y", "z", "ms",]
 
 all_times_aruco =  room_10["Time"].tolist()
@@ -173,7 +173,7 @@ for i in range(len(interpolated_data)):
 # input('pause')
 tlist = list(room_10.Time)
 mslist = list(room_10.ms)
-idlist = list(room_10.Aruco)
+# idlist = list(room_10.Aruco)
 xlist = list(room_10.x)
 ylist = list(room_10.y)
 zlist = list(room_10.z)
@@ -194,7 +194,8 @@ print("pcapTime,Time,Aruco,x,y,z,Lable,ms,pcapData")
 file_name = 'pcapdata.csv'
 file = open(file_name,'w')
 writer = csv.writer(file)
-writer.writerow(['pcapTime', 'PC_time' ,'Aruco','x','y','z','Lable','ms','pcapData'])  #writing the first line to the csv file.
+writer.writerow(['pcapTime', 'PC_time','x','y','z','Lable','pcapData'])  #writing the first line to the csv file.
+# writer.writerow(['pcapTime', 'PC_time','Aruco','x','y','z','Lable','ms','pcapData'])  #writing the first line to the csv file.
 
 listCount = []
 # print('tp',Timelist[i])
@@ -226,9 +227,9 @@ manual_labels_int = replace_labels_with_ints(lablelist)
 
 
 labels_interp = numpy.interp(Timelist, mslist,manual_labels_int)
-auotlabel_result = replace_labels_with_ints(autolabeling(Timelist, interpolated_data_x, interpolated_data_y, interpolated_data_z,xp_time_float))
+# auotlabel_result = replace_labels_with_ints(autolabeling(Timelist, interpolated_data_x, interpolated_data_y, interpolated_data_z,xp_time_float))
 
-debug_print(auotlabel_result)
+# debug_print(auotlabel_result)
 debug_print(lablelist)
 debug_print(manual_labels_int)
 debug_print(labels_interp)
@@ -238,14 +239,14 @@ input('pause')
 
 #plot autolabeling
 
-comp = []
-for i in range(len(Timelist)):
-    if auotlabel_result[i] ==labels_interp[i]:
-        comp.append(-2)
-    else:
-        comp.append(-1)
+# comp = []
+# for i in range(len(Timelist)):
+#     if auotlabel_result[i] ==labels_interp[i]:
+#         comp.append(-2)
+#     else:
+#         comp.append(-1)
 
-plt.plot(Timelist, auotlabel_result, '-',color='y')
+# plt.plot(Timelist, auotlabel_result, '-',color='y')
 plt.plot(Timelist, labels_interp, '-',color='g')
 # plt.plot(Timelist, comp, '-',color='r')
 # plt.plot(debug_slope_list[0], debug_slope_list[1], '-',color='r')
