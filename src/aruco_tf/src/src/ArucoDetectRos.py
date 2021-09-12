@@ -251,8 +251,8 @@ def get_position_from_video(cap, to_draw=False, to_show=False, mtx=None, dist=No
 
 
 def get_user_choise():
-    select = input("1 - Use Camera(usb port 0).\n2 - Use Recored Video\n\nSelect Your Choise: ")
-    # select = 2
+    # select = input("1 - Use Camera(usb port 0).\n2 - Use Recored Video\n\nSelect Your Choise: ")
+    select = 2
     if(select == 1): # uses the camera as an input.
         video = 0
     elif(select == 2): #uses an already recoreded video.
@@ -263,8 +263,9 @@ def get_user_choise():
         return -1
     
     # creating and opening a csv file.
-    file_name = raw_input("\nPlase enter the .csv file name: ")
-    # file_name = '123121.csv'
+    # file_name = raw_input("\nPlase enter the .csv file name (enter room number only!): ")
+    file_name = 'room.csv'
+    file = open('room_'+file_name+'.csv','w')
     file = open(file_name,'w')
     
     return file,video
@@ -299,7 +300,8 @@ if __name__ == '__main__':
     # video = '10.mp4'     # getting video from recorded video.
     
     writer = csv.writer(file)
-    writer.writerow(['Time:','x','y','z','ms'])  #writing the first line to the csv file.
+    # writer.writerow(['Time:','x','y','z','ms'])  #writing the first line to the csv file.
+    writer.writerow(['Time:','x','y','z','ms','Lable'])  #writing the first line to the csv file.
 
     rospy.init_node('arucoDetect')
     br = tf.TransformBroadcaster()
