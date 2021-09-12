@@ -23,7 +23,6 @@ from std_msgs.msg import UInt32
 from std_msgs.msg import String
 import message_filters
 import tf.transformations as tr
-import numpy as np
 import pickle
 import glob
 import cv2
