@@ -31,17 +31,17 @@ import cv2.aruco as aruco
 import csv
 import tf2_ros
 
-calib_path_param = '/home/makeruser/wifi-Project/Aruco_Tracker/images/for_calib/*.jpg'  ########## AMIR -> change these images and location
-aruco_dict_param = aruco.DICT_4X4_250 ########## AMIR -> this work for https://chev.me/arucogen/
-marker_length = 0.19 # meters
+CALIB_PATH_PARAM = '/home/makeruser/wifi-Project/Aruco_Tracker/images/for_calib/*.jpg'  ########## AMIR -> change these images and location
+ARUCO_DICT_PARAM = aruco.DICT_4X4_250 ########## AMIR -> this work for https://chev.me/arucogen/
+MARKER_LENGTH_METER = 0.19 # meters
 
-# floor_ids = [101,102]
-# human_ids = [100, 105]
-floor_ids = [102, 103, 104]
-human_ids = [0, 101, 1, 100]
 
-####---------------------- CALIBRATION ---------------------------
-def calib_camera(calib_path=calib_path_param):
+FLOOR_IDS = [102, 103, 104]
+HUMAN_IDS = [0, 101, 1, 100]
+
+
+def calib_camera(calib_path=CALIB_PATH_PARAM):
+    """Callibration"""
     # termination criteria for the iterative algorithm
     criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 
@@ -118,17 +118,27 @@ def get_human_position_from_single_aruco(rvec, tvec, ids): #without transposing
     br.sendTransform((translate),(quat),rospy.Time.now(),"human_loc_"+ str(ids[0]),"cam_weighted") #publish the transformation for this tag
     time.sleep(0.001)
     #print('{:.2f}, {:.2f}, {:.2f}'.format(translate[0], translate[1], translate[2]))
-    transform_wc = tfBuffer.lookup_transform("room_link", "human_loc_"+str(ids[0]), rospy.Time(0))
+    try:
+        # now = rospy.Time.now()
+        # listener.waitForTransform("/turtle2", "/carrot1", now, rospy.Duration(4.0))
+        # (trans,rot) = listener.lookupTransform("/turtle2", "/carrot1", now)
+        transform_wc = tfBuffer.lookup_transform("room_link", "human_loc_"+str(ids[0]), rospy.Time())
+        x=transform_wc.transform.translation.x
+        y=transform_wc.transform.translation.y
+        z=transform_wc.transform.translation.z
+        return np.array((x,y,z))
+    except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
+        pass
+
+    # transform_wc = tfBuffer.lookup_transform("room_link", "human_loc_"+str(ids[0]), rospy.Duration(1))
+
     # qx = transform_wc.transform.rotation.x
     # qy = transform_wc.transform.rotation.y
     # qz = transform_wc.transform.rotation.z
     # qw = transform_wc.transform.rotation.w
-    x=transform_wc.transform.translation.x
-    y=transform_wc.transform.translation.y
-    z=transform_wc.transform.translation.z
-    
-    
-    return np.array((x,y,z))
+
+    # return np.array((x,y,z))
+    return translate
 
 def save_load_calib(mtx=None, dist=None, save_calib=False):
     if save_calib and mtx is not None and dist is not None:
@@ -155,7 +165,7 @@ def get_position_from_image(frame, to_draw=False, to_show=False, mtx=None, dist=
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
     # set dictionary size depending on the aruco marker selected
-    aruco_dict = aruco.Dictionary_get(aruco_dict_param)
+    aruco_dict = aruco.Dictionary_get(ARUCO_DICT_PARAM)
 
     # detector parameters can be set here (List of detection parameters[3])
     parameters = aruco.DetectorParameters_create()
@@ -174,16 +184,16 @@ def get_position_from_image(frame, to_draw=False, to_show=False, mtx=None, dist=
 
         # estimate pose of each marker and return the values
         # rvet and tvec-different from camera coefficients
-        rvec, tvec , rel_corners = aruco.estimatePoseSingleMarkers(corners, marker_length, mtx, dist)
+        rvec, tvec , rel_corners = aruco.estimatePoseSingleMarkers(corners, MARKER_LENGTH_METER, mtx, dist)
         #(rvec-tvec).any() # get rid of that nasty numpy value array error
 
 
         for i in range(0, ids.size):
 
-            if(ids[i] in floor_ids):    # floor ids
+            if(ids[i] in FLOOR_IDS):    # floor ids
                 pos = get_position_from_single_aruco(rvec[i], tvec[i], ids[i])
 
-            elif(ids[i] in human_ids):   #human ids -> without transpose
+            elif(ids[i] in HUMAN_IDS):   #human ids -> without transpose
                 pos = get_human_position_from_single_aruco(rvec[i], tvec[i], ids[i])
             
             else:   #unknown ids -> same as floor ids
@@ -204,9 +214,9 @@ def get_position_from_image(frame, to_draw=False, to_show=False, mtx=None, dist=
             y0 , dy= 32, 25
 
             for i in range(0, ids.size):
-                if(ids[i] in floor_ids):
+                if(ids[i] in FLOOR_IDS):
                     strg += str(ids[i][0])+': Floor ' + '[{:.2f}, {:.2f}, {:.2f}]\n'.format(positions[i][1][0], positions[i][1][1], positions[i][1][2])
-                elif(ids[i] in human_ids):
+                elif(ids[i] in HUMAN_IDS):
                     strg += str(ids[i][0])+': Human ' + '[{:.2f}, {:.2f}, {:.2f}]\n'.format(positions[i][1][0], positions[i][1][1], positions[i][1][2])
                 else:
                     strg += str(ids[i][0])+': Undefined ' + '[{:.2f}, {:.2f}, {:.2f}]\n'.format(positions[i][1][0], positions[i][1][1], positions[i][1][2])
@@ -307,10 +317,10 @@ if __name__ == '__main__':
         count,timeCount,ms = time_stamp(count)  #creating a user friendly time and writing it to the csv.
 
         for pos in positions:
-            if pos[0][0] in floor_ids:    # recognized as a floor id's  
+            if pos[0][0] in FLOOR_IDS:    # recognized as a floor id's  
                 print('{}: Floor [{:.2f}, {:.2f}, {:.2f}]'.format(pos[0][0], pos[1][0], pos[1][1], pos[1][2]))
                 
-            elif pos[0][0] in human_ids:    # recognized as a human id's 
+            elif pos[0][0] in HUMAN_IDS:    # recognized as a human id's 
                 print('{}: Human [{:.2f}, {:.2f}, {:.2f}]'.format(pos[0][0], pos[1][0], pos[1][1], pos[1][2]))
                 writer.writerow([timeCount,'',pos[0][0],'{:.2f}'.format(pos[1][0]),'{:.2f}'.format(pos[1][1]),'{:.2f}'.format(pos[1][2]),ms])
                                 # ['Time:','Lable:','Aruco ID','x','y','z']   >> writes to the csv file in this format.
