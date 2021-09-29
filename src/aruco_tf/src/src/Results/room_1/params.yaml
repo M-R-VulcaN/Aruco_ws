@@ -1,0 +1,62 @@
+ips:
+  - 192.168.0.102 # 0
+  - 192.168.0.103 # 1
+  - 192.168.0.104 # 2
+  - 192.168.0.105 # 3
+channel: 36
+bandwidth: 80
+mac_address: dc:a6:32:b7:64:1b
+interface: wlan0
+custom_cmd: 500
+cmd_buffer_len: 34
+coremask: 1
+nssmask: 1
+
+room_id: 1
+wall_structure: #x0, y0 are the walls that are on along x axis and y axis
+    x0: geves
+    y0: geves
+    x1: geves
+    y1: blocks
+description: Room 1 (Noam) - baseline. 2021/09/12 21:55
+locations:
+  camera:
+    x: 1.13
+    y: 4.77
+    z: 1.95
+  "192.168.0.100": # AP
+    x: 1.35
+    y: 4.03
+    z: 0.73
+  "192.168.0.102":
+    x: 3.04
+    y: 2.81
+    z: 0.49
+  "192.168.0.103":
+    x: 1.01
+    y: 4.02
+    z: 0.73
+  "192.168.0.104":
+    x: 0.49
+    y: 2.48
+    z: 0.49
+  "192.168.0.105":
+    x: -0.40
+    y: 3.07
+    z: 0.49
+  qr102:
+    x: 1.19
+    y: 1.22
+    z: 0
+  qr103:
+    x: 2.65
+    y: 2.32
+    z: 0
+  qr104:
+    x: 1.19
+    y: 2.32
+    z: 0
+  room:
+    x: 3.81
+    y: 5.28
+    z: 2.79

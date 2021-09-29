@@ -53,11 +53,11 @@ if __name__ == "__main__":
     print("running pcapCsvToDs...")
     # pcap_data.csv
     import pcapCsvToDs
+    pcapCsvToDs.main()
     print("\nrunning the pcap data fix script...")
     # pcapdata.csv
     import pcapFix
     print("running placement fix script...")
-    # import replace
 
     import pandas as pd
     import numpy as np

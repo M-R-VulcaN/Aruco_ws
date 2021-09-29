@@ -30,7 +30,7 @@ import cv2
 import cv2.aruco as aruco
 import csv
 import tf2_ros
-
+import easygui
 CALIB_PATH_PARAM = '/home/makeruser/wifi-Project/Aruco_Tracker/images/for_calib/*.jpg'  ########## AMIR -> change these images and location
 ARUCO_DICT_PARAM = aruco.DICT_4X4_250 ########## AMIR -> this work for https://chev.me/arucogen/
 MARKER_LENGTH_METER = 0.19 # meters
@@ -256,7 +256,7 @@ def get_user_choise():
     if(select == 1): # uses the camera as an input.
         video = 0
     elif(select == 2): #uses an already recoreded video.
-        video = raw_input("\nPlease enter the video name (has to be in the code folder): ")
+        video = easygui.fileopenbox(title='select video to detect arucos')
         # video = '10.mp4'
     else:  #wrong input - will cause a break.
         print("\n------\nerror! please select an option from the options above!\n------\n")
@@ -264,8 +264,8 @@ def get_user_choise():
     
     # creating and opening a csv file.
     # file_name = raw_input("\nPlase enter the .csv file name (enter room number only!): ")
-    file_name = 'room.csv'
-    file = open('room_'+file_name+'.csv','w')
+    file_name = easygui.filesavebox(title='select output file')
+    # file = open('room_'+file_name+'.csv','w')
     file = open(file_name,'w')
     
     return file,video
