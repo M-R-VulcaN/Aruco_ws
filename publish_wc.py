@@ -15,6 +15,8 @@ import numpy as np
 from std_msgs.msg import Float64MultiArray
 from std_msgs.msg import Float64
 
+import time
+
 import tf_conversions
 from tf.transformations import euler_from_quaternion, quaternion_from_euler, quaternion_multiply
 results_filtered=0
@@ -41,6 +43,8 @@ if __name__ == '__main__':
 
     # last_translation = np.zeros((num_of_markers+2,3))
     last_translation = np.zeros((num_of_markers,3))
+    #starting a timer
+    start_time = time.time()
 
     while not rospy.is_shutdown():
         r.sleep()
@@ -104,7 +108,13 @@ if __name__ == '__main__':
             results = results / weighted_sum
             results = results.flatten()
 
-            results_filtered=results_filtered*0.98+results*0.02
+            # if timer > 30   -> results_filtered = results_filtered_last
+            if(start_time + 30 > time.time()):
+                results_filtered=results_filtered*0.98+results*0.02
+                last_results_filtered = results_filtered
+            else:
+                results_filtered = last_results_filtered
+
             # print("results_filtered = " +str(results_filtered))
             data_to_publish = Float64MultiArray()  # the data to be sent, initialise the array
             data_to_publish.data = results#.flatten() # assign the array with the value you want to send

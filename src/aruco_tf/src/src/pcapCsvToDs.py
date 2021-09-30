@@ -13,8 +13,8 @@ LAYING_DOWN_HEIGHT_M = 0.5
 LAYING_DOWN_HEIGHT_M = 0.25
 MOVEMENT_SLOPE = 0.00004
 DO_NOT_USE_TIME_GAP_MILLIS = 10000
-
-ROOM_FILENAME_CSV = "room_1.csv"
+room_num = input("enter room num: ")
+ROOM_FILENAME_CSV = "room_" + room_num + ".csv"
 """
 This code reads the pcapdata csv and write it to a new csv file with the ds_room csv
 compares the ms from both files.
