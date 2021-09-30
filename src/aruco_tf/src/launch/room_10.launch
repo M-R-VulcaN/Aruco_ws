@@ -14,13 +14,28 @@
 
 	<group unless="$(arg use_urdf)">
 	    <!--                                                       name            x      y    z q q q                        -->
-		<node pkg ="tf" type="static_transform_publisher" name="aruco_102" args="-0.91  -3.43  0 0 0 0 room_link aruco_102 50" />
-		<node pkg ="tf" type="static_transform_publisher" name="aruco_103" args="-3.45  -2.85  0 0 0 0 room_link aruco_103 50" />
-		<node pkg ="tf" type="static_transform_publisher" name="aruco_104" args="-3.03  -3.63  0 0 0 0 room_link aruco_104 50" />
-		<node pkg ="tf" type="static_transform_publisher" name="cam_weighted" args="-3.13105283598714  -6.947263052920278  2.3812413875782754 -0.8360011644107607 0.24041886809645363 -0.1491344372973932 0.4701699060755188 room_link cam_weighted 50" />
+		<node pkg ="tf" type="static_transform_publisher" name="aruco_102" args="-1.19  -1.22  0 0 0 0 room_link aruco_102 50" />
+		<node pkg ="tf" type="static_transform_publisher" name="aruco_103" args="-2.65  -2.32  0 0 0 0 room_link aruco_103 50" />
+		<node pkg ="tf" type="static_transform_publisher" name="aruco_104" args="-1.19  -2.32  0 0 0 0 room_link aruco_104 50" />
+		<node pkg ="tf" type="static_transform_publisher" name="cam_weighted" args="-1.0565963912600846  -5.456418037811381  2.09842110295872 -0.8486530613216158 -0.031595102533741294 -0.05321395620619408 0.5253170527121858 room_link cam_weighted 50" />
 		<!--                                                        name                 x                     y                   z                   qx                  qy                  qz                  qw                                  -->
 	</group> 
 
+<!-- 
+	  frame_id: "room_link"
+child_frame_id: "cam_weighted"
+transform: 
+  translation: 
+    x: -1.0565963912600846
+    y: -5.456418037811381
+    z: 2.09842110295872
+  rotation: 
+    x: -0.8486530613216158
+    y: -0.031595102533741294
+    z: -0.05321395620619408
+    w: 0.5253170527121858
+
+ -->
 
 	<!-- Visualization RVIZ -->
 	<node if="$(arg rviz)" pkg="rviz" type="rviz" name="rviz" args="-d $(arg rviz_cfg)"/>
