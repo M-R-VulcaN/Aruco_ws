@@ -36,15 +36,13 @@ LAUNCH_FILE_STRING = """<?xml version="1.0"?>
 #{9}  {10}  {11} {12} {13} {14} {15}
 
 def main():
-    # room_number = sys.argv[ROOM_NUMBER_INDEX]
-
     # yaml_file_full_path = sys.argv[YAML_FILE_PATH_INDEX]
 
     yaml_file_full_path = sys.argv[YAML_FILE_PATH_INDEX]
 
     launch_file_full_path = sys.argv[LAUNCH_FILE_PATH_INDEX]
 
-    # launch_file_full_path = '/home/makeruser/Aruco_ws/src/aruco_tf/src/launch/room_' + room_number + '.launch'
+    launch_file_full_path = '/home/makeruser/Aruco_ws/src/aruco_tf/src/launch/room_' + str(launch_file_full_path) + '.launch'
 
 
     launch_file = open(launch_file_full_path,"w")

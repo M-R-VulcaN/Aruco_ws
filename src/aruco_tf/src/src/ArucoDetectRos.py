@@ -256,7 +256,7 @@ def get_position_from_video(cap, to_draw=False, to_show=False, mtx=None, dist=No
 
 
 def get_user_choise():
-    room_number = sys.argv[ROOM_NUMBER_INDEX]
+    room_number = sys.argv[2]
     # select = input("1 - Use Camera(usb port 0).\n2 - Use Recored Video\n\nSelect Your Choise: ")
     select = 2
     if(select == 1): # uses the camera as an input.
@@ -278,7 +278,7 @@ def get_user_choise():
         file_name = easygui.filesavebox(title='select output file')
     else:
         # file_name = sys.argv[OUTPUT_FILE_INDEX]
-        file_name = '/home/makeruser/temp/aruco_outputs/room_' + room_number+ '_aruco.csv'
+        file_name = '/home/makeruser/temp/aruco_outputs/room_' + str(room_number)+ '_aruco.csv'
     # file = open('room_'+file_name+'.csv','w')
     file = open(file_name,'w')
     

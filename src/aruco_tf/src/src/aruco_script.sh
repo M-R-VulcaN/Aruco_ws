@@ -5,28 +5,26 @@
 
 source ~/Aruco_ws/devel/setup.bash
 
-FOLDER_NAME = '/home/makeruser/Desktop/record-wifi-results'
-
+FOLDER_NAME="/home/makeruser/Desktop/record-wifi-results"
+TEMP_FOLDER="/home/makeruser/temp"
 # input 1 -> room_1_...... ->/room_1_../params.yaml
 # patamsYamlToLaunch.py -> /home/makeruser/Aruco_ws/src/aruco_tf/src/launch
-
-# python2.7 paramsYamlToLaunch.py $1
-python2.7 paramsYamlToLaunch.py $FOLDER_NAME +'/room_'+$1+'/params.yaml'
-
+python2.7 paramsYamlToLaunch.py  "$FOLDER_NAME/room_$1/params.yaml"   $1
+echo "finished creating a launch file."
 sleep .5
 
+echo "running the launch file"
 gnome-terminal --tab --title="roslaunch" -- roslaunch aruco_tf room_$1.launch
 
 sleep 2.5
- 
-# gnome-terminal --tab --title="publish_ws" -- python2.7 /usr/local/bin/scripts_raw_data_to_dataset/publish_wc.py
+echo "running publish_ws"
 gnome-terminal --tab --title="publish_ws" -- python2.7 /home/makeruser/Aruco_ws/publish_wc.py
 
 sleep 5
-
-# gnome-terminal --tab --title="aruco" -- python2.7 /usr/local/bin/scripts_raw_data_to_dataset/ArucoDetectRos.py video.mp4 room_$1_aruco.csv #~/Aruco_ws/src/aruco_tf/src/src/ArucoDetectRos.py video.mp4 room_$1_aruco.csv
-
+echo "running the ArucoDetectRos"
 # input 1 -> room_1_...... -> /room_1_../ video.mp4
 # output-> ~/temp/aruco_outputs/room_1_aruco.csv
-# gnome-terminal --tab --title="aruco" -- python2.7 /home/makeruser/Aruco_ws/src/aruco_tf/src/src/ArucoDetectRos.py video.mp4 room_$1_aruco.csv
-gnome-terminal --tab --title="aruco" -- python2.7 /home/makeruser/Aruco_ws/src/aruco_tf/src/src/ArucoDetectRos.py  $FOLDER_NAME + '/room_'+$1+'/video.mp4'
+python2.7 /home/makeruser/Aruco_ws/src/aruco_tf/src/src/ArucoDetectRos.py  "$FOLDER_NAME/room_$1/video.mp4"  $1
+echo "finished Aruco and generated csv file of the aruco"
+
+python3 /home/makeruser/Aruco_ws/src/aruco_tf/src/src/fromLablesToData.py "$TEMP_FOLDER/labels_files/room_$1_labels.csv"   "$TEMP_FOLDER/aruco_outputs/room_$1_aruco.csv"   "$TEMP_FOLDER/room_output/room_$1.csv"
