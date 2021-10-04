@@ -7,14 +7,20 @@ import time
 import matplotlib.pyplot as plt
 from scipy.stats import linregress
 import csv 
-import fromLablesToData
+#import fromLablesToData
+import sys
+
+sys.path.append('/usr/local/bin/scripts_raw_data_to_dataset')
+
 STANDING_HEIGHT_MIN_M = 0.8
 LAYING_DOWN_HEIGHT_M = 0.5
 LAYING_DOWN_HEIGHT_M = 0.25
 MOVEMENT_SLOPE = 0.00004
 DO_NOT_USE_TIME_GAP_MILLIS = 10000
-room_num = input("enter room num: ")
-ROOM_FILENAME_CSV = "room_" + room_num + ".csv"
+
+
+
+
 """
 This code reads the pcapdata csv and write it to a new csv file with the ds_room csv
 compares the ms from both files.
@@ -150,8 +156,10 @@ def autolabeling(time_list,x_list,y_list,z_list,original_time_aruco):
             
 
     
-def main():
-    pcap_csv_data = pd.read_csv("pcap_data.csv")
+def main(pcap_data_filename = "pcap_data.csv", room_filename_csv = None, pcap_data_output_filename = "pcapdata.csv", display_graphs = True):
+    if room_filename_csv is None:
+        room_filename_csv ="room_" + input("enter room num1: ") + ".csv"
+    pcap_csv_data = pd.read_csv(pcap_data_filename)
 
     assert type(pcap_csv_data) != "None"
 
@@ -164,7 +172,7 @@ def main():
     assert len(Timelist) == len(PcTimelist) and len(PcTimelist) == len(Datalist) and len(Datalist) != 0 
 
 
-    room_10 = pd.read_csv(ROOM_FILENAME_CSV)
+    room_10 = pd.read_csv(room_filename_csv)
 
     assert type(room_10) != "None"
     room_10.columns = ["Time", "x", "y", "z", "ms", "Lable"]
@@ -202,7 +210,7 @@ def main():
     
     print("pcapTime,Time,Aruco,x,y,z,Lable,ms,pcapData")
     # file_name = input("\nPlase enter the .csv file name: ")
-    file_name = 'pcapdata.csv'
+    file_name = pcap_data_output_filename
     file = open(file_name,'w')
 
     assert file != None
@@ -269,19 +277,20 @@ def main():
     #         comp.append(-1)
 
     # plt.plot(Timelist, auotlabel_result, '-',color='y')
-    plt.plot(Timelist, labels_interp, '-',color='g')
-    # plt.plot(Timelist, comp, '-',color='r')
-    # plt.plot(debug_slope_list[0], debug_slope_list[1], '-',color='r')
-    # plt.plot()
-    # plot in XZ plane
-    # plt.plot(interpolated_data_x, interpolated_data_z, '-x',color='g')
-    # plt.plot(fp_x, fp_z, 'o',color='r')
+    if display_graphs:
+        plt.plot(Timelist, labels_interp, '-',color='g')
+        # plt.plot(Timelist, comp, '-',color='r')
+        # plt.plot(debug_slope_list[0], debug_slope_list[1], '-',color='r')
+        # plt.plot()
+        # plot in XZ plane
+        # plt.plot(interpolated_data_x, interpolated_data_z, '-x',color='g')
+        # plt.plot(fp_x, fp_z, 'o',color='r')
 
-    # plt.plot(Timelist, interpolated_data_y, '-x',color='y')
-    plt.plot(Timelist, interpolated_data_z, '-',color='r')
-    # plt.plot(t_full, yinterp, '-x')
-    plt.ticklabel_format(useOffset=False)
-    plt.show()
+        # plt.plot(Timelist, interpolated_data_y, '-x',color='y')
+        plt.plot(Timelist, interpolated_data_z, '-',color='r')
+        # plt.plot(t_full, yinterp, '-x')
+        plt.ticklabel_format(useOffset=False)
+        plt.show()
     label_list = []
     for label_int in labels_interp:
         label_int = round(label_int)

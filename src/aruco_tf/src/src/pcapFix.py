@@ -24,14 +24,17 @@ def fix_df(df):
     # return df,room_num
     return df
 
-def read_csv(file_path, fix=False, write_fixed=False):
+def read_csv(file_path, fix=False, write_fixed=False, output_file_path = 'dataset_fixed.csv'):
     df = pd.read_csv(file_path)
     if fix:
         df = fix_df(df)
     if write_fixed:
         # df.to_csv(file_path + '_fixed.csv', index=False)
-        df.to_csv('dataset_fixed.csv', index=False)
+        df.to_csv(output_file_path, index=False)
     return df
 
-file_path = 'pcapdata.csv'
-df = read_csv(file_path, fix=True, write_fixed=True)
+def main(pcapdata_csv_file_path = 'pcapdata.csv', output_file_path = 'dataset_fixed.csv'):
+    df = read_csv(pcapdata_csv_file_path, fix=True, write_fixed=True, output_file_path=output_file_path )
+
+if __name__ == '__main__':
+    main()

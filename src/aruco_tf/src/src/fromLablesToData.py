@@ -20,8 +20,8 @@ if len(sys.argv) < 4:
     ARUCO_POSITION_FILENAME = "room_" + str(room_number) + "_aruco.csv"
 else:
     CSV_LABELS_FILENAME = sys.argv[CSV_LABELS_FILE_PATH_INDEX]
-    CSV_LABELS_FILENAME = sys.argv[OUTPUT_FILE_PATH_INDEX]
-    CSV_LABELS_FILENAME = sys.argv[ARUCO_POSITIONS_FILE_PATH_INDEX]
+    OUTPUT_FILE_FILENAME = sys.argv[OUTPUT_FILE_PATH_INDEX]
+    ARUCO_POSITION_FILENAME = sys.argv[ARUCO_POSITIONS_FILE_PATH_INDEX]
 
 def get_label_intervaltree(csv_labels_filename = CSV_LABELS_FILENAME): 
     f = open(csv_labels_filename, "r")

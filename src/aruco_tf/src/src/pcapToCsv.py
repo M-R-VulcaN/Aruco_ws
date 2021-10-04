@@ -10,13 +10,25 @@ import csv
 from CSIKit.util.csitools import get_CSI
 from CSIKit.util.filters import bandpass, hampel, running_mean
 from CSIKit.reader import get_reader
+import sys
 
-room = input("enter room number: ")
-DEFAULT_PATH = input("please enter PCAP file name: ")
+ROOM_NUMBER_INDEX = 1
+PCAP_FILE_PATH_INDEX = 2
+LABELED_ARUCO_FILE_PATH_INDEX = 3
+
+if len(sys.argv) == 1:
+    ROOM_NUMBER = input("enter room number: ")
+    PCAP_FILE_PATH = input("please enter PCAP file name: ")
+    LABELED_ARUCO_FILE_PATH = "room_"+str(ROOM_NUMBER)+".csv"
+else:
+    ROOM_NUMBER = sys.argv[ROOM_NUMBER_INDEX]
+    PCAP_FILE_PATH = sys.argv[PCAP_FILE_PATH_INDEX]
+    LABELED_ARUCO_FILE_PATH = sys.argv[LABELED_ARUCO_FILE_PATH_INDEX]
+    
 # DEFAULT_PATH = "output.pcap"
 
 if __name__ == "__main__":
-    path: str=DEFAULT_PATH
+    path: str=PCAP_FILE_PATH
     reader = get_reader(path)
     csi_data = reader.read_file(path)
     print ("csi_data.frames: ",len(csi_data.frames))
@@ -53,10 +65,11 @@ if __name__ == "__main__":
     print("running pcapCsvToDs...")
     # pcap_data.csv
     import pcapCsvToDs
-    pcapCsvToDs.main()
+    pcapCsvToDs.main(room_filename_csv=LABELED_ARUCO_FILE_PATH,display_graphs=False)
     print("\nrunning the pcap data fix script...")
     # pcapdata.csv
-    import pcapFix
+    import pcapFix 
+    pcapFix.main()
     print("running placement fix script...")
 
     import pandas as pd
@@ -82,4 +95,4 @@ if __name__ == "__main__":
 
     print(df)
 
-    df.to_csv(r'Results/dataset_room_'+ room + '.csv', index = False, header = True)
+    df.to_csv(r'Results/dataset_room_'+ ROOM_NUMBER + '.csv', index = False, header = True)

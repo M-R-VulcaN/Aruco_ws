@@ -1,0 +1,53 @@
+ips:
+  - 192.168.0.102 # 0
+  - 192.168.0.103 # 1
+  - 192.168.0.104 # 2
+  - 192.168.0.105 # 3
+channel: 36
+bandwidth: 80
+mac_address: dc:a6:32:b7:64:1b
+interface: wlan0
+custom_cmd: 500
+cmd_buffer_len: 34
+coremask: 1
+nssmask: 1
+
+room_id: 11
+description: Movements (standing, laying, sitting and walking)
+locations:
+  camera:
+    x: 0.4
+    y: 0.54
+    z: 2
+  "192.168.0.100": # AP
+    x: 0.4
+    y: 0.54
+    z: 0.56
+  "192.168.0.102":
+    x: 0.47
+    y: 2.67
+    z: 0.4
+  "192.168.0.103":
+    x: 4.2
+    y: 2.2
+    z: 0.4
+  "192.168.0.104":
+    x: 1.8
+    y: 5.5
+    z: 0.43
+  "192.168.0.105":
+    x: 3.34
+    y: 3.5
+    z: 0.45
+  qr102:
+    x: 2.16
+    y: 2.44
+    z: 0
+  qr103:
+    x: 1.2
+    y: 3.02
+    z: 0
+  qr104:
+    x: 2.58
+    y: 3.76
+    z: 0

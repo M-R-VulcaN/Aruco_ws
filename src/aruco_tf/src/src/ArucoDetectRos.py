@@ -36,8 +36,10 @@ CALIB_PATH_PARAM = '/home/makeruser/wifi-Project/Aruco_Tracker/images/for_calib/
 ARUCO_DICT_PARAM = aruco.DICT_4X4_250 ########## AMIR -> this work for https://chev.me/arucogen/
 MARKER_LENGTH_METER = 0.19 # meters
 
-VIDEO_PATH_INDEX =1
-OUTPUT_FILE_INDEX =2
+# VIDEO_PATH_INDEX =1
+# OUTPUT_FILE_INDEX =2
+ROOM_NUMBER_INDEX = 1
+
 
 FLOOR_IDS = [102, 103, 104]
 HUMAN_IDS = [0, 101, 1, 100]
@@ -254,6 +256,7 @@ def get_position_from_video(cap, to_draw=False, to_show=False, mtx=None, dist=No
 
 
 def get_user_choise():
+    room_number = sys.argv[ROOM_NUMBER_INDEX]
     # select = input("1 - Use Camera(usb port 0).\n2 - Use Recored Video\n\nSelect Your Choise: ")
     select = 2
     if(select == 1): # uses the camera as an input.
@@ -262,7 +265,9 @@ def get_user_choise():
         if len(sys.argv) == 1:
             video = easygui.fileopenbox(title='select video to detect arucos')
         else:
-            video = sys.argv[VIDEO_PATH_INDEX]
+            video = sys.argv[ROOM_NUMBER_INDEX]
+            # '/home/makeruser/Desktop/record-wifi-results/room_'+room_number+'/video.mp4'
+            # video = sys.argv[VIDEO_PATH_INDEX]
     else:  #wrong input - will cause a break.
         print("\n------\nerror! please select an option from the options above!\n------\n")
         return -1
@@ -272,7 +277,8 @@ def get_user_choise():
     if len(sys.argv) == 1:
         file_name = easygui.filesavebox(title='select output file')
     else:
-        file_name = sys.argv[OUTPUT_FILE_INDEX]
+        # file_name = sys.argv[OUTPUT_FILE_INDEX]
+        file_name = '/home/makeruser/temp/aruco_outputs/room_' + room_number+ '_aruco.csv'
     # file = open('room_'+file_name+'.csv','w')
     file = open(file_name,'w')
     
@@ -332,7 +338,7 @@ if __name__ == '__main__':
                 
             elif pos[0][0] in HUMAN_IDS:    # recognized as a human id's 
                 print('{}: Human [{:.2f}, {:.2f}, {:.2f}]'.format(pos[0][0], pos[1][0], pos[1][1], pos[1][2]))
-                writer.writerow([timeCount, '{:.2f}'.format(pos[1][0]),'{:.2f}'.format(pos[1][1]),'{:.2f}'.format(pos[1][2]),ms])
+                writer.writerow([timeCount, '{:.2f}'.format(abs(pos[1][0])),'{:.2f}'.format(abs(pos[1][1])),'{:.2f}'.format(abs(pos[1][2])),ms])
                                 # ['Time:','Lable:','Aruco ID','x','y','z']   >> writes to the csv file in this format.
                 alreadywritten = True # setting it to prevent duplicates.
             else:   # recognized id but undefined id
