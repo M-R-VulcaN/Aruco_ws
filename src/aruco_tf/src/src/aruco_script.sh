@@ -27,4 +27,7 @@ echo "running the ArucoDetectRos"
 python2.7 /home/makeruser/Aruco_ws/src/aruco_tf/src/src/ArucoDetectRos.py  "$FOLDER_NAME/room_$1/video.mp4"  $1
 echo "finished Aruco and generated csv file of the aruco"
 
+echo "adding labels to Aruco csv"
 python3 /home/makeruser/Aruco_ws/src/aruco_tf/src/src/fromLablesToData.py "$TEMP_FOLDER/labels_files/room_$1_labels.csv"   "$TEMP_FOLDER/aruco_outputs/room_$1_aruco.csv"   "$TEMP_FOLDER/room_output/room_$1.csv"
+echo "finished"
+
