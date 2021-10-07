@@ -1,8 +1,0 @@
-prefix=/home/makeruser/Aruco_ws/devel
-
-Name: aruco_tf
-Description: Description of aruco_tf
-Version: 0.0.0
-Cflags: 
-Libs: -L${prefix}/lib 
-Requires: 

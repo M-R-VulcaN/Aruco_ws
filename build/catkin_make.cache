@@ -1,2 +1,0 @@
-aruco_tf
--DCATKIN_DEVEL_PREFIX=/home/makeruser/Aruco_ws/devel -DCMAKE_INSTALL_PREFIX=/home/makeruser/Aruco_ws/install -G Unix Makefiles

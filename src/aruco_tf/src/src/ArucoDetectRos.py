@@ -32,7 +32,10 @@ import csv
 import tf2_ros
 import easygui
 import sys
-CALIB_PATH_PARAM = '/home/makeruser/wifi-Project/Aruco_Tracker/images/for_calib/*.jpg'  ########## AMIR -> change these images and location
+import os
+
+HOME_DIR = os.path.expanduser('~')
+CALIB_PATH_PARAM = HOME_DIR+'/wifi-Project/Aruco_Tracker/images/for_calib/*.jpg'  ########## AMIR -> change these images and location
 ARUCO_DICT_PARAM = aruco.DICT_4X4_250 ########## AMIR -> this work for https://chev.me/arucogen/
 MARKER_LENGTH_METER = 0.19 # meters
 
@@ -278,7 +281,7 @@ def get_user_choise():
         file_name = easygui.filesavebox(title='select output file')
     else:
         # file_name = sys.argv[OUTPUT_FILE_INDEX]
-        file_name = '/home/makeruser/temp/aruco_outputs/room_' + str(room_number)+ '_aruco.csv'
+        file_name = HOME_DIR+'/temp/aruco_outputs/room_' + str(room_number)+ '_aruco.csv'
     # file = open('room_'+file_name+'.csv','w')
     file = open(file_name,'w')
     

@@ -42,7 +42,7 @@ def main():
 
     launch_file_full_path = sys.argv[LAUNCH_FILE_PATH_INDEX]
 
-    launch_file_full_path = '/home/makeruser/Aruco_ws/src/aruco_tf/src/launch/room_' + str(launch_file_full_path) + '.launch'
+    # launch_file_full_path = '/home/makeruser/Aruco_ws/src/aruco_tf/src/launch/room_' + str(launch_file_full_path) + '.launch'
 
 
     launch_file = open(launch_file_full_path,"w")
