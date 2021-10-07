@@ -10,7 +10,7 @@ import csv
 #import fromLablesToData
 import sys
 
-sys.path.append('/usr/local/bin/scripts_raw_data_to_dataset')
+# sys.path.append('/usr/local/bin/scripts_raw_data_to_dataset')
 
 STANDING_HEIGHT_MIN_M = 0.8
 LAYING_DOWN_HEIGHT_M = 0.5

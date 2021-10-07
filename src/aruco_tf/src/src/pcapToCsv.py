@@ -15,6 +15,7 @@ import sys
 ROOM_NUMBER_INDEX = 1
 PCAP_FILE_PATH_INDEX = 2
 LABELED_ARUCO_FILE_PATH_INDEX = 3
+PCAP_NUM_INDEX = 4
 
 if len(sys.argv) == 1:
     ROOM_NUMBER = input("enter room number: ")
@@ -24,6 +25,7 @@ else:
     ROOM_NUMBER = sys.argv[ROOM_NUMBER_INDEX]
     PCAP_FILE_PATH = sys.argv[PCAP_FILE_PATH_INDEX]
     LABELED_ARUCO_FILE_PATH = sys.argv[LABELED_ARUCO_FILE_PATH_INDEX]
+    PCAP_NUM = sys.argv[PCAP_NUM_INDEX]
     
 # DEFAULT_PATH = "output.pcap"
 
@@ -95,4 +97,4 @@ if __name__ == "__main__":
 
     print(df)
 
-    df.to_csv(r'Results/dataset_room_'+ ROOM_NUMBER + '.csv', index = False, header = True)
+    df.to_csv(r'Results/dataset_room_'+ ROOM_NUMBER + '_pcap_' + PCAP_NUM + '.csv', index = False, header = True)

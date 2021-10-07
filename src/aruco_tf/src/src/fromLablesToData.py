@@ -34,12 +34,12 @@ def get_label_intervaltree(csv_labels_filename = CSV_LABELS_FILENAME):
     for line in data_container.split('\n')[1:-1]:
         print('line', line)
         line_values = line.split(';')
-        print(int(line_values[START_TIME_INDEX]))
-        print(int(line_values[END_TIME_INDEX]))
+        print(float(line_values[START_TIME_INDEX]))
+        print(float(line_values[END_TIME_INDEX]))
         print(line_values[LABEL_INDEX])
 
         print()
-        data[int(line_values[START_TIME_INDEX]) : int(line_values[END_TIME_INDEX])] = line_values[LABEL_INDEX].replace("\"","")
+        data[float(line_values[START_TIME_INDEX]) : float(line_values[END_TIME_INDEX])] = line_values[LABEL_INDEX].replace("\"","")
         print(line_values[LABEL_INDEX].replace("\"",""))
     return data
 

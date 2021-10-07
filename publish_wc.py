@@ -109,7 +109,7 @@ if __name__ == '__main__':
             results = results.flatten()
 
             # if timer > 30   -> results_filtered = results_filtered_last
-            if(start_time + 30 > time.time()):
+            if(start_time + 35 > time.time()):
                 results_filtered=results_filtered*0.98+results*0.02
                 last_results_filtered = results_filtered
             else:
