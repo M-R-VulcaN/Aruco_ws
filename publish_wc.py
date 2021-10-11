@@ -19,10 +19,20 @@ import time
 
 import tf_conversions
 from tf.transformations import euler_from_quaternion, quaternion_from_euler, quaternion_multiply
+import sys
+
 results_filtered=0
 
-# human_ids = [0, 101, 1, 100]
-floor_ids = [102, 103, 104]
+FLOOR_IDS_INDEX = 1
+
+FLOOR_IDS = [102, 103, 104]
+# if len(sys.argv) == 1:
+#     FLOOR_IDS = [102,103,104]
+#     print(1)
+# else:
+#     print(sys.argv[FLOOR_IDS_INDEX])
+#     FLOOR_IDS = (sys.argv[FLOOR_IDS_INDEX]).split(",")
+
 
 if __name__ == '__main__':
     rospy.init_node('publish_wc', anonymous=False)
@@ -36,13 +46,12 @@ if __name__ == '__main__':
 
     r=rospy.Rate(40)
 
-    # num_of_markers=3  # 102,103,104 
-    num_of_markers = len(floor_ids)
+    num_of_markers = len(FLOOR_IDS)
 
     results=np.zeros((num_of_markers,6))
 
-    # last_translation = np.zeros((num_of_markers+2,3))
     last_translation = np.zeros((num_of_markers,3))
+
     #starting a timer
     start_time = time.time()
 
@@ -51,15 +60,15 @@ if __name__ == '__main__':
         results=np.zeros((1,6))
         weighted_sum = np.array(0.0)
         
-        # for num in range(2, num_of_markers+2):
-        for num in floor_ids:    
+        for num in FLOOR_IDS:    
             try:
-                # transform_lc = tfBuffer.lookup_transform("cam_loc_10"+str(num),"aruco_10"+str(num), rospy.Time(0))
+
                 transform_lc = tfBuffer.lookup_transform("cam_loc_"+str(num),"aruco_"+str(num), rospy.Time(0))
 
                 x=transform_lc.transform.translation.x
                 y=transform_lc.transform.translation.y
                 z=transform_lc.transform.translation.z
+                
 
             except Exception as e:
                 # rospy.loginfo(e)
@@ -67,22 +76,10 @@ if __name__ == '__main__':
 
             curr_translation=np.array((x,y,z))
 
-            # #filtering that caused errors
-            # if np.array_equal(last_translation[num],curr_translation):
-            #     continue
-            # print (curr_translation , "  " , last_translation[num])
-
-
-            # last_translation[num]=curr_translation #here
-            # last_translation[num]=curr_translation 
-
             distance = np.linalg.norm(curr_translation)
             weight = 1 # / distance    #TEMP - EACH WEIGHT IS EQUAL
-            # print("dist = " , distance ,"weight = ", weight)
-            # print("weight = " , weight)
 
             try: 
-                # transform_wc = tfBuffer.lookup_transform("room_link", "cam_loc_10"+str(num), rospy.Time(0))
                 transform_wc = tfBuffer.lookup_transform("room_link", "cam_loc_"+str(num), rospy.Time(0))
                 qx = transform_wc.transform.rotation.x
                 qy = transform_wc.transform.rotation.y
@@ -103,19 +100,17 @@ if __name__ == '__main__':
                 rospy.loginfo(e)
                 continue
 
-        # print("weighted_sum = "+ str(weighted_sum))
         if weighted_sum != 0:
             results = results / weighted_sum
             results = results.flatten()
 
-            # if timer > 30   -> results_filtered = results_filtered_last
+            # if the timer > 35 seconds  -> results_filtered = results_filtered_last
             if(start_time + 35 > time.time()):
                 results_filtered=results_filtered*0.98+results*0.02
                 last_results_filtered = results_filtered
             else:
                 results_filtered = last_results_filtered
 
-            # print("results_filtered = " +str(results_filtered))
             data_to_publish = Float64MultiArray()  # the data to be sent, initialise the array
             data_to_publish.data = results#.flatten() # assign the array with the value you want to send
             pub.publish(data_to_publish)
@@ -128,14 +123,13 @@ if __name__ == '__main__':
             t.transform.translation.y = results_filtered[1]
             t.transform.translation.z = results_filtered[2]
             
-            #here the error in the roll pitch yaw happens:
             q = tf_conversions.transformations.quaternion_from_euler(results_filtered[3],results_filtered[4],results_filtered[5])
             t.transform.rotation.x = q[0]
             t.transform.rotation.y = q[1]
             t.transform.rotation.z = q[2]
             t.transform.rotation.w = q[3]
             print(t)
-            # print(t.transform.translation)
+            
             br.sendTransform(t)
 
             factor = 1 #transform weighted sum into stdev

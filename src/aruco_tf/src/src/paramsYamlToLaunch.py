@@ -1,8 +1,9 @@
 import yaml
 import sys
 
-LAUNCH_FILE_PATH_INDEX = 2
 YAML_FILE_PATH_INDEX = 1
+ROOM_NUMBER_INDEX = 2
+LAUNCH_FILE_PATH_INDEX = 3
 
 LAUNCH_FILE_STRING = """<?xml version="1.0"?>
 <launch>
@@ -40,9 +41,7 @@ def main():
 
     yaml_file_full_path = sys.argv[YAML_FILE_PATH_INDEX]
 
-    launch_file_full_path = sys.argv[LAUNCH_FILE_PATH_INDEX]
-
-    launch_file_full_path = '/home/makeruser/Aruco_ws/src/aruco_tf/src/launch/room_' + str(launch_file_full_path) + '.launch'
+    launch_file_full_path = sys.argv[LAUNCH_FILE_PATH_INDEX] + '/room_' + str(sys.argv[ROOM_NUMBER_INDEX]) + '.launch'
 
 
     launch_file = open(launch_file_full_path,"w")

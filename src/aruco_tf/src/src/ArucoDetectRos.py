@@ -32,17 +32,25 @@ import csv
 import tf2_ros
 import easygui
 import sys
-CALIB_PATH_PARAM = '/home/makeruser/wifi-Project/Aruco_Tracker/images/for_calib/*.jpg'  ########## AMIR -> change these images and location
-ARUCO_DICT_PARAM = aruco.DICT_4X4_250 ########## AMIR -> this work for https://chev.me/arucogen/
+
+CALIB_PATH_PARAM = '/home/makeruser/wifi-Project/Aruco_Tracker/images/for_calib/*.jpg'  #change those images and location
+ARUCO_DICT_PARAM = aruco.DICT_4X4_250 #this work for https://chev.me/arucogen/
 MARKER_LENGTH_METER = 0.19 # meters
 
-# VIDEO_PATH_INDEX =1
-# OUTPUT_FILE_INDEX =2
-ROOM_NUMBER_INDEX = 1
-
+VIDEO_PATH_INDEX = 1
+OUTPUT_FILE_INDEX = 2
+ROOM_NUMBER_INDEX = 3
+HUMAN_IDS_INDEX = 4
+FLOOR_IDS_INDEX = 5
 
 FLOOR_IDS = [102, 103, 104]
 HUMAN_IDS = [0, 101, 1, 100]
+# if len(sys.argv) == 1:
+#     FLOOR_IDS = [102, 103, 104]
+#     HUMAN_IDS = [0, 101, 1, 100]
+# else:
+#     FLOOR_IDS = (sys.argv[FLOOR_IDS_INDEX]).split(",")
+#     HUMAN_IDS = (sys.argv[HUMAN_IDS_INDEX]).split(",")
 
 
 def calib_camera(calib_path=CALIB_PATH_PARAM):
@@ -95,13 +103,16 @@ def get_position_from_single_aruco(rvec, tvec, ids):
     rot_mat_cam2obj_padded = np.zeros((4, 4))
     rot_mat_cam2obj_padded[:3, :3] = rot_mat_cam2obj
     rot_mat_cam2obj_padded[3, 3] = 1
-    
+
     quat=tr.quaternion_from_matrix(rot_mat_cam2obj_padded) #obtain the cam-to-object quaternion rotation indices
 
     # translate = np.dot(rot_mat_cam2obj, tvec[0])  # rotate the translation vector
     translate = np.dot(-1 * rot_mat_cam2obj, tvec[0])  # rotate the translation vector
 
-    br.sendTransform((translate),(quat),rospy.Time.now(),"cam_loc_"+ str(ids[0]),"aruco_"+str(ids[0])) #publish the transformation for this tag
+    if(translate[0] > 0):
+        br.sendTransform((translate),(quat),rospy.Time.now(),"cam_loc_"+ str(ids[0]),"aruco_"+str(ids[0])) #publish the transformation for this tag
+    else:
+        pass
 
     return translate
 
@@ -119,14 +130,10 @@ def get_human_position_from_single_aruco(rvec, tvec, ids): #without transposing
     
     translate = tvec[0] #np.dot( rot_mat_cam2obj, tvec[0])  # rotate the translation vector
     print(translate)
-    print(type(translate))
     br.sendTransform((translate),(quat),rospy.Time.now(),"human_loc_"+ str(ids[0]),"cam_weighted") #publish the transformation for this tag
     time.sleep(0.001)
     #print('{:.2f}, {:.2f}, {:.2f}'.format(translate[0], translate[1], translate[2]))
     try:
-        # now = rospy.Time.now()
-        # listener.waitForTransform("/turtle2", "/carrot1", now, rospy.Duration(4.0))
-        # (trans,rot) = listener.lookupTransform("/turtle2", "/carrot1", now)
         transform_wc = tfBuffer.lookup_transform("room_link", "human_loc_"+str(ids[0]), rospy.Time())
         x=transform_wc.transform.translation.x
         y=transform_wc.transform.translation.y
@@ -136,12 +143,6 @@ def get_human_position_from_single_aruco(rvec, tvec, ids): #without transposing
         pass
 
     # transform_wc = tfBuffer.lookup_transform("room_link", "human_loc_"+str(ids[0]), rospy.Duration(1))
-
-    # qx = transform_wc.transform.rotation.x
-    # qy = transform_wc.transform.rotation.y
-    # qz = transform_wc.transform.rotation.z
-    # qw = transform_wc.transform.rotation.w
-
     # return np.array((x,y,z))
     return translate
 
@@ -256,7 +257,7 @@ def get_position_from_video(cap, to_draw=False, to_show=False, mtx=None, dist=No
 
 
 def get_user_choise():
-    room_number = sys.argv[2]
+    room_number = sys.argv[ROOM_NUMBER_INDEX]
     # select = input("1 - Use Camera(usb port 0).\n2 - Use Recored Video\n\nSelect Your Choise: ")
     select = 2
     if(select == 1): # uses the camera as an input.
@@ -265,7 +266,7 @@ def get_user_choise():
         if len(sys.argv) == 1:
             video = easygui.fileopenbox(title='select video to detect arucos')
         else:
-            video = sys.argv[ROOM_NUMBER_INDEX]
+            video = sys.argv[VIDEO_PATH_INDEX]
             # '/home/makeruser/Desktop/record-wifi-results/room_'+room_number+'/video.mp4'
             # video = sys.argv[VIDEO_PATH_INDEX]
     else:  #wrong input - will cause a break.
@@ -278,7 +279,7 @@ def get_user_choise():
         file_name = easygui.filesavebox(title='select output file')
     else:
         # file_name = sys.argv[OUTPUT_FILE_INDEX]
-        file_name = '/home/makeruser/temp/aruco_outputs/room_' + str(room_number)+ '_aruco.csv'
+        file_name = sys.argv[OUTPUT_FILE_INDEX]+'/room_' + str(room_number)+ '_aruco.csv'
     # file = open('room_'+file_name+'.csv','w')
     file = open(file_name,'w')
     
