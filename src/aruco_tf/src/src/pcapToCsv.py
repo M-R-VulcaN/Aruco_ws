@@ -56,12 +56,7 @@ if __name__ == "__main__":
             writer.writerow({'Timestamp': timer,'PC_time': pcTimer, 'pcapData': finalEntry[j]})
             count += 1
             last = j
-            # writer.writerow({'PC_time': pcTimer})
-        # print("finished writing data to file.\n\n")
-        # print("\nfirst pcap data: \n", finalEntry[0])
-        # if (count != len(csi_data.frames)):
-        #     print("\nempty data first stamp: \n",finalEntry[last+1])
-        
+
     print("running pcapCsvToDs...")
     import pcapCsvToDs
     pcapCsvToDs.main(room_filename_csv=LABELED_ARUCO_FILE_PATH,display_graphs=False)

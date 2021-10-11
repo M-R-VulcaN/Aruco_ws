@@ -18,6 +18,8 @@ echo "running the launch file..."
 gnome-terminal --tab --title="roslaunch" -- roslaunch aruco_tf room_$1.launch
 
 sleep 2.5
+# gnome-terminal --tab --title="rviz" -- rosrun rviz rviz -d /home/makeruser/Desktop/aruco_cfg.rviz
+
 echo "running publish_ws..."
 gnome-terminal --tab --title="publish_ws" -- python2.7 /home/makeruser/Aruco_ws/publish_wc.py   #${FLOOR_ARUCO_IDS}
 
@@ -31,9 +33,8 @@ python3 /home/makeruser/Aruco_ws/src/aruco_tf/src/src/fromLablesToData.py "$TEMP
 echo "finished adding labels"
 
 out=`python3 $SCRIPTS_PATH/pcapFolders.py  "$RESULTS_FOLDER_PATH/room_$1"`
-# # run folders.py code
+
 IFS=$'\n'; out_array=($out); unset IFS;
-              
 dir_counter=0
 for dir in "${out_array[@]}"
 do
