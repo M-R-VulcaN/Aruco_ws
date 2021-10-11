@@ -12,6 +12,9 @@ from CSIKit.util.filters import bandpass, hampel, running_mean
 from CSIKit.reader import get_reader
 import sys
 
+import pandas as pd
+import numpy as np
+
 ROOM_NUMBER_INDEX = 1
 PCAP_FILE_PATH_INDEX = 2
 LABELED_ARUCO_FILE_PATH_INDEX = 3
@@ -26,8 +29,6 @@ else:
     PCAP_FILE_PATH = sys.argv[PCAP_FILE_PATH_INDEX]
     LABELED_ARUCO_FILE_PATH = sys.argv[LABELED_ARUCO_FILE_PATH_INDEX]
     PCAP_NUM = sys.argv[PCAP_NUM_INDEX]
-    
-# DEFAULT_PATH = "output.pcap"
 
 if __name__ == "__main__":
     path: str=PCAP_FILE_PATH
@@ -38,7 +39,7 @@ if __name__ == "__main__":
     print ("csi_data.timestamps: ",len(csi_data.timestamps))
     count = 0
     j = -1
-    # file_name = input("please enter file name: ")
+
     file_name = 'pcap_data.csv'
     with open(file_name, 'w') as csvfile:
         fieldnames = ['Timestamp', 'PC_time','pcapData']
@@ -51,40 +52,28 @@ if __name__ == "__main__":
             import time
 
             pcTimer = time.ctime(pcTimer)
-
-            # print(pcTimer)
-            timer = (i - csi_data.timestamps[0])*1000
-            #1627975155.109669-1627972936.190185       #in order to represent time in ms and not pc time.
+            timer = (i - csi_data.timestamps[0])*1000 #in order to represent time in ms and not pc time.   
             writer.writerow({'Timestamp': timer,'PC_time': pcTimer, 'pcapData': finalEntry[j]})
             count += 1
             last = j
             # writer.writerow({'PC_time': pcTimer})
-        print("finished writing data to file.\n\n")
-        print("\nfirst pcap data: \n", finalEntry[0])
-        if (count != len(csi_data.frames)):
-            print("\nempty data first stamp: \n",finalEntry[last+1])
+        # print("finished writing data to file.\n\n")
+        # print("\nfirst pcap data: \n", finalEntry[0])
+        # if (count != len(csi_data.frames)):
+        #     print("\nempty data first stamp: \n",finalEntry[last+1])
         
     print("running pcapCsvToDs...")
-    # pcap_data.csv
     import pcapCsvToDs
     pcapCsvToDs.main(room_filename_csv=LABELED_ARUCO_FILE_PATH,display_graphs=False)
-    print("\nrunning the pcap data fix script...")
-    # pcapdata.csv
+
+    print("finished\nrunning the pcap data fix script...")
     import pcapFix 
     pcapFix.main()
+
     print("running placement fix script...")
-
-    import pandas as pd
-    import numpy as np
-
         
     df = pd.read_csv("dataset_fixed.csv")
-    print(df.columns)
-
     lablesArr = df.columns
-
-    print(len(lablesArr))
-
     newList = []
 
     newList.append(lablesArr[0])    # pcap time
@@ -95,6 +84,5 @@ if __name__ == "__main__":
 
     df = df[newList]
 
-    print(df)
-
     df.to_csv(r'Results/dataset_room_'+ ROOM_NUMBER + '_pcap_' + PCAP_NUM + '.csv', index = False, header = True)
+    print("finished!\n")

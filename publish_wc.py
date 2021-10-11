@@ -1,4 +1,3 @@
-
 #!/usr/bin/python
 
 # sucscribes to log_ranges and publishes PointStanmed message in LC
@@ -128,8 +127,7 @@ if __name__ == '__main__':
             t.transform.rotation.y = q[1]
             t.transform.rotation.z = q[2]
             t.transform.rotation.w = q[3]
-            print(t)
-            
+
             br.sendTransform(t)
 
             factor = 1 #transform weighted sum into stdev

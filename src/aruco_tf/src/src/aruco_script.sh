@@ -41,5 +41,4 @@ do
     echo "pcap index: $dir_counter"
     python3 /home/makeruser/Aruco_ws/src/aruco_tf/src/src/pcapToCsv.py   $1   $dir    "$TEMP_FOLDER_PATH/room_output/room_$1.csv"  $dir_counter
     let dir_counter++
-    # do something with each folder
 done
