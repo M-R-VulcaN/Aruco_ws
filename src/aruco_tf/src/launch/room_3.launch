@@ -14,9 +14,9 @@
 
     <group unless="$(arg use_urdf)">
         <!--                                                       name            x      y    z q q q                        -->
-        <node pkg ="tf" type="static_transform_publisher" name="aruco_102" args="3.4  0.88  0 0 0 0 room_link aruco_102 50" />
-        <node pkg ="tf" type="static_transform_publisher" name="aruco_103" args="2.45  1.59  0 0 0 0 room_link aruco_103 50" />
-        <node pkg ="tf" type="static_transform_publisher" name="aruco_104" args="2.58  0.79  0 0 0 0 room_link aruco_104 50" />
+        <node pkg ="tf" type="static_transform_publisher" name="aruco_102" args="-3.4  -0.88  0 0 0 0 room_link aruco_102 50" />
+        <node pkg ="tf" type="static_transform_publisher" name="aruco_103" args="-2.45  -1.59  0 0 0 0 room_link aruco_103 50" />
+        <node pkg ="tf" type="static_transform_publisher" name="aruco_104" args="-2.58  -0.79  0 0 0 0 room_link aruco_104 50" />
         <!-- node pkg ="tf" type="static_transform_publisher" name="cam_weighted" args="0 0 0 0 0 0 0 room_link cam_weighted 50" /> -->
         <!--                                                        name                 x                     y                   z                   qx                  qy                  qz                  qw                                  -->
     </group> 

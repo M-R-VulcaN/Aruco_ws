@@ -1,17 +1,22 @@
 # Aruco_ws
 
-**Clone the repo to your computer**
+## _A dataset creator for wifi recording project_
 
-**The code called ArucoDetectRos.py under the path Aruco_ws/src/aruco_tf/src/src/ArucoDetectRos.py**
+[![N|Solid](https://thumbs.dreamstime.com/b/d-illustration-wifi-symbol-sign-internet-network-connection-background-wireless-187836855.jpg)](https://github.com/M-R-VulcaN/Record-Wifi)
 
-**run:**
+developed by M-R-Vulcan Team
+
+## How To Run:
+- cd ~/Aruco_ws/src/aruco_tf/src/src/
+
+and run the bash script:
+- ./aruco_script.sh < room number >
+
+for example:
+./aruco_script.sh 1
+
+## ./aruco_script.sh:
 ```
-terminal 1: $ roscore
-
-terminal 2: $ source ~/Aruco_ws/devel/setup.bash
-            $ roslaunch aruco_tf static_new.launch
-
-terminal 3: $ rviz
 ```
 
 **RVIZ configuration:**
@@ -20,12 +25,7 @@ Add TF
 change Global Frame > room_link
 ```
 
-**use the client:**
-```
-run the client.py codeunder the path Aruco_ws/src/aruco_tf/client.py
-```
-
-**to display frame**
+**to record and display frames**
 ```
 $ rosrun tf view_frames
 $ evince frames.pdf 
