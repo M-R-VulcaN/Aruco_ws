@@ -43,14 +43,18 @@ ROOM_NUMBER_INDEX = 3
 HUMAN_IDS_INDEX = 4
 FLOOR_IDS_INDEX = 5
 
-FLOOR_IDS = [102, 103, 104]
-HUMAN_IDS = [0, 101, 1, 100]
-# if len(sys.argv) == 1:
-#     FLOOR_IDS = [102, 103, 104]
-#     HUMAN_IDS = [0, 101, 1, 100]
-# else:
-#     FLOOR_IDS = (sys.argv[FLOOR_IDS_INDEX]).split(",")
-#     HUMAN_IDS = (sys.argv[HUMAN_IDS_INDEX]).split(",")
+
+if len(sys.argv) == 1:
+    FLOOR_IDS = [102, 103, 104]
+    HUMAN_IDS = [0, 101, 1, 100]
+else:
+    floor_ids_str = sys.argv[FLOOR_IDS_INDEX]
+    FLOOR_IDS = floor_ids_str.split(',')
+    FLOOR_IDS = [int(i) for i in FLOOR_IDS]
+
+    human_ids_str = sys.argv[HUMAN_IDS_INDEX]
+    HUMAN_IDS = human_ids_str.split(',')
+    HUMAN_IDS = [int(i) for i in HUMAN_IDS]
 
 
 def calib_camera(calib_path=CALIB_PATH_PARAM):
@@ -60,8 +64,8 @@ def calib_camera(calib_path=CALIB_PATH_PARAM):
 
     # prepare object points, like (0,0,0), (1,0,0), (2,0,0) ....,(6,5,0)
     # checkerboard of size (7 x 6) is used
-    objp = np.zeros((6*7, 3), np.float32)
-    objp[:,:2] = np.mgrid[0:7, 0:6].T.reshape(-1, 2)
+    objp = np.zeros((6*9, 3), np.float32)
+    objp[:,:2] = np.mgrid[0:9, 0:6].T.reshape(-1, 2)
 
     # arrays to store object points and image points from all the images.
     objpoints = [] # 3d point in real world space
@@ -71,17 +75,19 @@ def calib_camera(calib_path=CALIB_PATH_PARAM):
     # in the folder
 
     images = glob.glob(calib_path)
-
+    counter = 0
     for fname in images:
         img = cv2.imread(fname)
         gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
 
         # find the chess board (calibration pattern) corners
-        ret, corners = cv2.findChessboardCorners(gray, (7, 6), None)
+        ret, corners = cv2.findChessboardCorners(gray, (9, 6), None)
 
         # if calibration pattern is found, add object points,
         # image points (after refining them)
         if ret == True:
+            print(fname.split('/')[-1])
+            counter += 1
             objpoints.append(objp)
 
             # Refine the corners of the detected corners
@@ -89,9 +95,9 @@ def calib_camera(calib_path=CALIB_PATH_PARAM):
             imgpoints.append(corners2)
 
             # Draw and display the corners
-            img = cv2.drawChessboardCorners(img, (7, 6), corners2, ret)
-
-
+            img = cv2.drawChessboardCorners(img, (9, 6), corners2, ret)
+    
+    print(counter)      
     ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, gray.shape[::-1],None,None)
     return ret, mtx, dist, rvecs, tvecs
 
@@ -302,9 +308,9 @@ def time_stamp(count):
 if __name__ == '__main__':
 
 
-    #ret, mtx, dist, rvecs, tvecs = calib_camera()
-    #save_load_calib(mtx=mtx, dist=dist, save_calib=True)
-    #time.sleep(1000)
+    # ret, mtx, dist, rvecs, tvecs = calib_camera()
+    # save_load_calib(mtx=mtx, dist=dist, save_calib=True)
+    # time.sleep(1000)
     count = 0
     frameCount = 0
     alreadywritten = False

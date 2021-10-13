@@ -1,10 +1,5 @@
 #!/usr/bin/python
 
-# sucscribes to log_ranges and publishes PointStanmed message in LC
-# if transformation between 'drone' and 'world' exists, publishes PointStamped message in WC
-# publishes laserscan in 'drone' frame, and converts it to PointCloud2 too.
-
-
 import rospy
 import tf2_ros
 import geometry_msgs.msg
@@ -24,13 +19,12 @@ results_filtered=0
 
 FLOOR_IDS_INDEX = 1
 
-FLOOR_IDS = [102, 103, 104]
-# if len(sys.argv) == 1:
-#     FLOOR_IDS = [102,103,104]
-#     print(1)
-# else:
-#     print(sys.argv[FLOOR_IDS_INDEX])
-#     FLOOR_IDS = (sys.argv[FLOOR_IDS_INDEX]).split(",")
+if len(sys.argv) == 1:
+    FLOOR_IDS = [102,103,104]
+else:
+    floor_ids_str = sys.argv[FLOOR_IDS_INDEX]
+    FLOOR_IDS = floor_ids_str.split(',')
+    FLOOR_IDS = [int(i) for i in FLOOR_IDS]
 
 
 if __name__ == '__main__':
@@ -88,7 +82,7 @@ if __name__ == '__main__':
                 y=transform_wc.transform.translation.y
                 z=transform_wc.transform.translation.z
                 (roll, pitch, yaw) = euler_from_quaternion ([qx,qy,qz,qw],axes='sxyz')
-                print("Aruco 10" + str(num) + " roll = " + str(roll) +" pitch = " + str(pitch) + " yaw = " + str(yaw) + " x = " + str(x) + " y = " + str(y) + " z = " + str(z))
+                # print("Aruco " + str(num) + " roll = " + str(roll) +" pitch = " + str(pitch) + " yaw = " + str(yaw) + " x = " + str(x) + " y = " + str(y) + " z = " + str(z))
                 # rospy.loginfo("Aruco 10%i roll= %f  pitch = %f  yaw = %f x=%f y=%f z=%f",num,roll,pitch,yaw,x,y,z )
 
                 results += weight*np.array([x,y,z,roll,pitch,yaw])
@@ -127,7 +121,7 @@ if __name__ == '__main__':
             t.transform.rotation.y = q[1]
             t.transform.rotation.z = q[2]
             t.transform.rotation.w = q[3]
-
+            print(t)
             br.sendTransform(t)
 
             factor = 1 #transform weighted sum into stdev
