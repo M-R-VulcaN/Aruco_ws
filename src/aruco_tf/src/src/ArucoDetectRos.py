@@ -153,6 +153,7 @@ def get_human_position_from_single_aruco(rvec, tvec, ids): #without transposing
     return translate
 
 def save_load_calib(mtx=None, dist=None, save_calib=False):
+    """saves  the calibration files if they are not exits or load the calibration files if they do exist"""
     if save_calib and mtx is not None and dist is not None:
         import pickle
         with open('calib_mtx.pkl', 'wb') as f:
@@ -193,15 +194,11 @@ def get_position_from_image(frame, to_draw=False, to_show=False, mtx=None, dist=
     # if no check is added the code will crash
     positions = []
     if np.all(ids != None):
-
         # estimate pose of each marker and return the values
         # rvet and tvec-different from camera coefficients
         rvec, tvec , rel_corners = aruco.estimatePoseSingleMarkers(corners, MARKER_LENGTH_METER, mtx, dist)
         #(rvec-tvec).any() # get rid of that nasty numpy value array error
-
-
         for i in range(0, ids.size):
-
             if(ids[i] in FLOOR_IDS):    # floor ids
                 pos = get_position_from_single_aruco(rvec[i], tvec[i], ids[i])
 
@@ -215,8 +212,6 @@ def get_position_from_image(frame, to_draw=False, to_show=False, mtx=None, dist=
 
             if to_draw:
                 aruco.drawAxis(frame, mtx, dist, rvec[i], tvec[i], 0.1)
-
-
         if to_draw:
             # draw a square around the markers
             aruco.drawDetectedMarkers(frame, corners)
@@ -237,19 +232,16 @@ def get_position_from_image(frame, to_draw=False, to_show=False, mtx=None, dist=
             for x, line in enumerate(strg.split('\n')[:-1]):
                 y = y0 + x*dy
                 cv2.putText(frame, "Id " + line, (0, y), font, 0.6, (0, 255, 0), 2, cv2.LINE_AA)
-
     else:
         if to_draw:
             # code to show 'No Ids' when no markers are found
             cv2.putText(frame, "No Ids", (0, 32), font, 0.8, (0,255,0), 2, cv2.LINE_AA)
-
     # display the resulting frame
     if to_show:
         cv2.imshow('frame', frame)
         cv2.waitKey(1)
         #if cv2.waitKey(1) & 0xFF == ord('q'):
         #    break
-
     return positions
 
 
@@ -316,12 +308,8 @@ if __name__ == '__main__':
     alreadywritten = False
 
     file,video = get_user_choise()
-    # file = 'file.csv'    # csv file.
-    # video = 0            # getting video from camera.
-    # video = '10.mp4'     # getting video from recorded video.
-    
+
     writer = csv.writer(file)
-    # writer.writerow(['Time:','x','y','z','ms'])  #writing the first line to the csv file.
     writer.writerow(['Time:','x','y','z','ms','Lable'])  #writing the first line to the csv file.
 
     rospy.init_node('arucoDetect')
@@ -346,7 +334,7 @@ if __name__ == '__main__':
             elif pos[0][0] in HUMAN_IDS:    # recognized as a human id's 
                 print('{}: Human [{:.2f}, {:.2f}, {:.2f}]'.format(pos[0][0], pos[1][0], pos[1][1], pos[1][2]))
                 writer.writerow([timeCount, '{:.2f}'.format(abs(pos[1][0])),'{:.2f}'.format(abs(pos[1][1])),'{:.2f}'.format(abs(pos[1][2])),ms])
-                                # ['Time:','Lable:','Aruco ID','x','y','z']   >> writes to the csv file in this format.
+                                # ['Time:','x','y','z','ms']   >> writes to the csv file in this format.
                 alreadywritten = True # setting it to prevent duplicates.
             else:   # recognized id but undefined id
                 print('{}: Undefined [{:.2f}, {:.2f}, {:.2f}]'.format(pos[0][0], pos[1][0], pos[1][1], pos[1][2]))
@@ -355,14 +343,12 @@ if __name__ == '__main__':
         # alreadywritten parameter should be false if human id NOT recognized.
         if(alreadywritten == False):
             writer.writerow([timeCount,'','','',ms]) # write the user friendly time to the csv file and ms.
-        else:                # time lable id x  y  z  ms
+        else:               #['Time:','x','y','z','ms']
             alreadywritten = False
-
         frameCount += 1
 
         print("-------------------------------")
         print("time: " + timeCount + "\n")
-        # print("frames: " , frameCount, "ms = ", ms)
         print("video fps: ", frameCount/count)
     # When everything done, release the capture
     cap.release()

@@ -82,7 +82,7 @@ if __name__ == '__main__':
                 y=transform_wc.transform.translation.y
                 z=transform_wc.transform.translation.z
                 (roll, pitch, yaw) = euler_from_quaternion ([qx,qy,qz,qw],axes='sxyz')
-                # print("Aruco " + str(num) + " roll = " + str(roll) +" pitch = " + str(pitch) + " yaw = " + str(yaw) + " x = " + str(x) + " y = " + str(y) + " z = " + str(z))
+                print("Aruco " + str(num) + " roll = " + str(roll) +" pitch = " + str(pitch) + " yaw = " + str(yaw) + " x = " + str(x) + " y = " + str(y) + " z = " + str(z))
                 # rospy.loginfo("Aruco 10%i roll= %f  pitch = %f  yaw = %f x=%f y=%f z=%f",num,roll,pitch,yaw,x,y,z )
 
                 results += weight*np.array([x,y,z,roll,pitch,yaw])
@@ -128,35 +128,3 @@ if __name__ == '__main__':
             reliability=Float64()
             reliability.data = weighted_sum * factor 
             rel_pub.publish(reliability)
-    
-    
-    # DO NOT DELETE:
-        # for num in human_ids:
-        #     try: 
-        #         human_wc = tfBuffer.lookup_transform("room_link", "human_loc"+str(num), rospy.Time(0))
-        #         qx = human_wc.transform.rotation.x
-        #         qy = human_wc.transform.rotation.y
-        #         qz = human_wc.transform.rotation.z
-        #         qw = human_wc.transform.rotation.w
-        #         x=human_wc.transform.translation.x
-        #         y=human_wc.transform.translation.y
-        #         z=human_wc.transform.translation.z
-
-        #         t = geometry_msgs.msg.TransformStamped()
-        #         t.header.stamp = rospy.Time.now()
-        #         t.header.frame_id = "room_link"
-        #         t.child_frame_id = "human_loc"
-        #         t.transform.rotation.x = qx
-        #         t.transform.rotation.y = qy
-        #         t.transform.rotation.z = qz
-        #         t.transform.rotation.w = qw
-        #         t.transform.translation.x =x
-        #         t.transform.translation.y = y
-        #         t.transform.translation.z = z
-        #         br.sendTransform(t)
-        #     except Exception as e:
-        #         rospy.loginfo(e)
-        #     continue
-           
-
-
