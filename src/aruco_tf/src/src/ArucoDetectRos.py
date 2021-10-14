@@ -64,8 +64,8 @@ def calib_camera(calib_path=CALIB_PATH_PARAM):
 
     # prepare object points, like (0,0,0), (1,0,0), (2,0,0) ....,(6,5,0)
     # checkerboard of size (7 x 6) is used
-    objp = np.zeros((6*9, 3), np.float32)
-    objp[:,:2] = np.mgrid[0:9, 0:6].T.reshape(-1, 2)
+    objp = np.zeros((9*9, 3), np.float32)
+    objp[:,:2] = np.mgrid[0:9, 0:9].T.reshape(-1, 2)
 
     # arrays to store object points and image points from all the images.
     objpoints = [] # 3d point in real world space
@@ -81,7 +81,7 @@ def calib_camera(calib_path=CALIB_PATH_PARAM):
         gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
 
         # find the chess board (calibration pattern) corners
-        ret, corners = cv2.findChessboardCorners(gray, (9, 6), None)
+        ret, corners = cv2.findChessboardCorners(gray, (9, 9), None)
 
         # if calibration pattern is found, add object points,
         # image points (after refining them)
@@ -95,10 +95,16 @@ def calib_camera(calib_path=CALIB_PATH_PARAM):
             imgpoints.append(corners2)
 
             # Draw and display the corners
-            img = cv2.drawChessboardCorners(img, (9, 6), corners2, ret)
+            img = cv2.drawChessboardCorners(img, (9, 9), corners2, ret)
+            cv2.imshow('img', img)
+            cv2.waitKey(500)
     
     print(counter)      
     ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, gray.shape[::-1],None,None)
+    print(mtx) 
+    print(dist)
+    # import pdb
+    # pdb.set_trace()
     return ret, mtx, dist, rvecs, tvecs
 
 def get_position_from_single_aruco(rvec, tvec, ids):
@@ -135,15 +141,20 @@ def get_human_position_from_single_aruco(rvec, tvec, ids): #without transposing
     quat=tr.quaternion_from_matrix(rot_mat_cam2obj_padded) #obtain the cam-to-object quaternion rotation indices
     
     translate = tvec[0] #np.dot( rot_mat_cam2obj, tvec[0])  # rotate the translation vector
-    print(translate)
+    # print('person is at {:.2f},{:.2f},{:.2f}'.format(translate[0],translate[1],translate[2]))
     br.sendTransform((translate),(quat),rospy.Time.now(),"human_loc_"+ str(ids[0]),"cam_weighted") #publish the transformation for this tag
     time.sleep(0.001)
     #print('{:.2f}, {:.2f}, {:.2f}'.format(translate[0], translate[1], translate[2]))
     try:
+        transform_wc = tfBuffer.lookup_transform("cam_weighted", "human_loc_"+str(ids[0]), rospy.Time())
+        xwc=transform_wc.transform.translation.x
+        ywc=transform_wc.transform.translation.y
+        zwc=transform_wc.transform.translation.z
         transform_wc = tfBuffer.lookup_transform("room_link", "human_loc_"+str(ids[0]), rospy.Time())
         x=transform_wc.transform.translation.x
         y=transform_wc.transform.translation.y
         z=transform_wc.transform.translation.z
+        print('person (in camera link) is at {:.2f},{:.2f},{:.2f}'.format(xwc,ywc,zwc))
         return np.array((x,y,z))
     except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
         pass
@@ -201,6 +212,8 @@ def get_position_from_image(frame, to_draw=False, to_show=False, mtx=None, dist=
         for i in range(0, ids.size):
             if(ids[i] in FLOOR_IDS):    # floor ids
                 pos = get_position_from_single_aruco(rvec[i], tvec[i], ids[i])
+                #print(ids[i], pos)
+                #time.sleep(0.5)
 
             elif(ids[i] in HUMAN_IDS):   #human ids -> without transpose
                 pos = get_human_position_from_single_aruco(rvec[i], tvec[i], ids[i])
@@ -249,6 +262,7 @@ def get_position_from_video(cap, to_draw=False, to_show=False, mtx=None, dist=No
     # ------------- ARUCO TRACKER ---------------------------
     ret, frame = cap.read()
     frame = cv2.rotate(frame, cv2.cv2.ROTATE_180)
+    #time.sleep(0.03)
     #print(ret)
     positions = get_position_from_image(frame, to_draw=to_draw, to_show=to_show, mtx=mtx, dist=dist, save_calib=save_calib)
     return positions
@@ -300,9 +314,9 @@ def time_stamp(count):
 if __name__ == '__main__':
 
 
-    # ret, mtx, dist, rvecs, tvecs = calib_camera()
-    # save_load_calib(mtx=mtx, dist=dist, save_calib=True)
-    # time.sleep(1000)
+    #ret, mtx, dist, rvecs, tvecs = calib_camera()
+    #save_load_calib(mtx=mtx, dist=dist, save_calib=True)
+    #time.sleep(1000)
     count = 0
     frameCount = 0
     alreadywritten = False
@@ -324,6 +338,8 @@ if __name__ == '__main__':
     
     while(True):
         positions = get_position_from_video(cap, to_draw=True, to_show=True)
+
+        # continue ## AMIR -> added this to see prints
 
         count,timeCount,ms = time_stamp(count)  #creating a user friendly time and writing it to the csv.
 

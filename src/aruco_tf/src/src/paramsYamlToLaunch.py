@@ -21,9 +21,9 @@ LAUNCH_FILE_STRING = """<?xml version="1.0"?>
 
     <group unless="$(arg use_urdf)">
         <!--                                                       name            x      y    z q q q                        -->
-        <node pkg ="tf" type="static_transform_publisher" name="aruco_102" args="-{0}  -{1}  {2} 0 0 0 room_link aruco_102 50" />
-        <node pkg ="tf" type="static_transform_publisher" name="aruco_103" args="-{3}  -{4}  {5} 0 0 0 room_link aruco_103 50" />
-        <node pkg ="tf" type="static_transform_publisher" name="aruco_104" args="-{6}  -{7}  {8} 0 0 0 room_link aruco_104 50" />
+        <node pkg ="tf" type="static_transform_publisher" name="aruco_102" args="{0}  {1}  {2} 3.14 0 0 room_link aruco_102 50" />
+        <node pkg ="tf" type="static_transform_publisher" name="aruco_103" args="{3}  {4}  {5} 3.14 0 0 room_link aruco_103 50" />
+        <node pkg ="tf" type="static_transform_publisher" name="aruco_104" args="{6}  {7}  {8} 3.14 0 0 room_link aruco_104 50" />
         <!-- node pkg ="tf" type="static_transform_publisher" name="cam_weighted" args="0 0 0 0 0 0 0 room_link cam_weighted 50" /> -->
         <!--                                                        name                 x                     y                   z                   qx                  qy                  qz                  qw                                  -->
     </group> 
