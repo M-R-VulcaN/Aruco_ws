@@ -1,5 +1,6 @@
 import yaml
 import sys
+import numpy as np
 
 YAML_FILE_PATH_INDEX = 1
 ROOM_NUMBER_INDEX = 2
@@ -59,13 +60,16 @@ def main():
         data_loaded["locations"]["qr104"]["y"],
         data_loaded["locations"]["qr104"]["z"]
     )
+    cam_loc = (data_loaded["locations"]["camera"]["x"],
+    data_loaded["locations"]["camera"]["y"],
+    data_loaded["locations"]["camera"]["z"])
     launch_file.write(launch_file_string_formated)
     launch_file.close()
+    # print("camera location: ", cam_loc)
+    sys.exit(np.array(cam_loc))
+    # sys.exit(list(cam_loc))
     
-
 
 
 if __name__ == "__main__":
     main()
-    print("done!")
- 

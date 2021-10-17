@@ -115,11 +115,26 @@ def get_position_from_single_aruco(rvec, tvec, ids):
     # translate = np.dot(rot_mat_cam2obj, tvec[0])  # rotate the translation vector
     translate = np.dot(-1 * rot_mat_cam2obj, tvec[0])  # rotate the translation vector
 
-    # if(translate[0] > 0):
-    #     br.sendTransform((translate),(quat),rospy.Time.now(),"cam_loc_"+ str(ids[0]),"aruco_"+str(ids[0])) #publish the transformation for this tag
-    # else:
-    #     pass
-    br.sendTransform((translate),(quat),rospy.Time.now(),"cam_loc_"+ str(ids[0]),"aruco_"+str(ids[0])) #publish the transformation for this tag
+    print("quat "+str(ids[0]), quat)
+    print("translate "+str(ids[0]), translate)
+    #time.sleep(0.2)
+    # if ids[0] == 102:
+    #     import pdb
+    #     pdb.set_trace()
+    if(translate[2] > 0):
+        br.sendTransform((translate),(quat),rospy.Time.now(),"cam_loc_"+ str(ids[0]),"aruco_"+str(ids[0])) #publish the transformation for this tag
+    else:
+        # translate[1] = abs(translate[1])
+        # quat[0] = abs(quat[0])
+        # quat[1] = abs(quat[1])
+        # if (quat[2] > 0):
+        #     quat[2] = quat[2]*-1
+        # if (quat[3] > 0):
+        #     quat[3] = quat[3]*-1
+        # br.sendTransform((abs(translate)),(quat),rospy.Time.now(),"cam_loc_"+ str(ids[0]),"aruco_"+str(ids[0])) #publish the transformation for this tag
+        # br.sendTransform((translate),(quat),rospy.Time.now(),"cam_loc_"+ str(ids[0]),"aruco_"+str(ids[0])) #publish the transformation for this tag
+        pass
+    # br.sendTransform((translate),(quat),rospy.Time.now(),"cam_loc_"+ str(ids[0]),"aruco_"+str(ids[0])) #publish the transformation for this tag
 
     return translate
 

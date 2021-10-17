@@ -13,11 +13,13 @@ import time
 
 import tf_conversions
 from tf.transformations import euler_from_quaternion, quaternion_from_euler, quaternion_multiply
+import yaml
 import sys
 
 results_filtered=0
 
 FLOOR_IDS_INDEX = 1
+CAMERA_LOC_INDEX = 2
 
 if len(sys.argv) == 1:
     FLOOR_IDS = [102,103,104]
@@ -26,7 +28,11 @@ else:
     FLOOR_IDS = floor_ids_str.split(',')
     FLOOR_IDS = [int(i) for i in FLOOR_IDS]
 
+    camera_location = sys.argv[CAMERA_LOC_INDEX]
+    camera_location = np.fromstring(camera_location.strip('[').strip(']'), sep=',')
+    print(camera_location)
 
+    
 if __name__ == '__main__':
     rospy.init_node('publish_wc', anonymous=False)
     pub = rospy.Publisher('results_array', Float64MultiArray, queue_size=10)
@@ -82,12 +88,17 @@ if __name__ == '__main__':
                 y=transform_wc.transform.translation.y
                 z=transform_wc.transform.translation.z
                 (roll, pitch, yaw) = euler_from_quaternion ([qx,qy,qz,qw],axes='sxyz')
-                print("Aruco " + str(num) + " roll = " + str(roll) +" pitch = " + str(pitch) + " yaw = " + str(yaw) + " x = " + str(x) + " y = " + str(y) + " z = " + str(z))
+                #print("Aruco " + str(num) + " roll = " + str(roll) +" pitch = " + str(pitch) + " yaw = " + str(yaw) + " x = " + str(x) + " y = " + str(y) + " z = " + str(z))
                 # rospy.loginfo("Aruco 10%i roll= %f  pitch = %f  yaw = %f x=%f y=%f z=%f",num,roll,pitch,yaw,x,y,z )
 
-                results += weight*np.array([x,y,z,roll,pitch,yaw])
+                cam = camera_location
+                # cam = np.array(camera_location)
+                dist = np.linalg.norm(cam - np.array([x,y,z]))
+                print('dist of id {} is {}'.format(str(num), str(dist)))
+                if dist < 1.0:
+                    results += weight*np.array([x,y,z,roll,pitch,yaw])
 
-                weighted_sum += weight
+                    weighted_sum += weight
                 # print(num," ==> ", np.array([x,y,z,roll,pitch,yaw]))
             except Exception as e:
                 rospy.loginfo(e)
@@ -121,7 +132,7 @@ if __name__ == '__main__':
             t.transform.rotation.y = q[1]
             t.transform.rotation.z = q[2]
             t.transform.rotation.w = q[3]
-            print(t)
+            #print(t)
             br.sendTransform(t)
 
             factor = 1 #transform weighted sum into stdev

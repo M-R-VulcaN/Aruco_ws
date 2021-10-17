@@ -137,6 +137,5 @@ def main(pcap_data_filename = "pcap_data.csv", room_filename_csv = None, pcap_da
     for i in range(len(Timelist)):
         assert writer.writerow([Timelist[i], PcTimelist[i], round(interpolated_data_x[i],2),round(interpolated_data_y[i],2), round(interpolated_data_z[i],2), label_list[i], Datalist[i]]) != None
 
-
 if __name__ == '__main__':
     main()

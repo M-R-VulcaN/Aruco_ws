@@ -17,8 +17,20 @@ echo "floor ids: ${FLOOR_ARUCO_IDS[@]}"
 echo "human ids: ${HUMAN_ARUCO_IDS[@]}"
 
 echo "creating launch file..."
-python2.7 paramsYamlToLaunch.py  "$RESULTS_FOLDER_PATH/room_$1/params.yaml"   $1   "$LAUNCH_FILE_PATH"
-sleep .5
+declare -a CAMERA_LOCATION
+CAMERA_LOCATION=($(python2.7 paramsYamlToLaunch.py  "$RESULTS_FOLDER_PATH/room_$1/params.yaml"   $1   "$LAUNCH_FILE_PATH"  2>&1 > /dev/null))
+echo "done!"
+echo "camera location: ${CAMERA_LOCATION[@]}"
+sleep 0.5
+
+echo "${CAMERA_LOCATION[*]}"
+echo "$CAMERA_LOCATION"
+echo "${CAMERA_LOCATION[1]}"
+
+declare -a CAM=(${CAMERA_LOCATION[0]},${CAMERA_LOCATION[1]},${CAMERA_LOCATION[2]})
+echo $CAM
+
+# python2.7 $SCRIPTS_PATH/test.py   $CAM
 
 echo "running the launch file..."
 gnome-terminal --tab --title="roslaunch" -- roslaunch aruco_tf room_$1.launch
@@ -27,7 +39,7 @@ sleep 2.5
 gnome-terminal --tab --title="rviz" -- rosrun rviz rviz -d /home/makeruser/Desktop/aruco_cfg.rviz
 
 echo "running publish_ws..."
-gnome-terminal --tab --title="publish_ws" -- python2.7 /home/makeruser/Aruco_ws/publish_wc.py   ${FLOOR_ARUCO_IDS[@]}
+gnome-terminal --tab --title="publish_ws" -- python2.7 /home/makeruser/Aruco_ws/publish_wc.py   ${FLOOR_ARUCO_IDS[@]}   $CAM
 
 sleep .5
 echo "running the ArucoDetectRos..."
@@ -38,6 +50,8 @@ echo "closing all unnecessary terminal tabs: PIDs: $(pgrep bash)"
 sleep .5
 kill $(pgrep gnome-terminal)
 sleep .5
+
+gnome-terminal --tab --title="roskill" -- killall -9 roscore && killall -9 rosmaster
 
 echo "adding labels to Aruco csv..."
 python3 /home/makeruser/Aruco_ws/src/aruco_tf/src/src/fromLablesToData.py "$TEMP_FOLDER_PATH/labels_files/room_$1_labels.csv"   "$TEMP_FOLDER_PATH/aruco_outputs/room_$1_aruco.csv"   "$TEMP_FOLDER_PATH/room_output/room_$1.csv"

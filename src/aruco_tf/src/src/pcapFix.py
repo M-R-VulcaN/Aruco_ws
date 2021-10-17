@@ -24,6 +24,7 @@ def fix_df(df):
 
 def read_csv(file_path, fix=False, write_fixed=False, output_file_path = 'dataset_fixed.csv'):
     df = pd.read_csv(file_path)
+    
     if fix:
         df = fix_df(df)
     if write_fixed:
