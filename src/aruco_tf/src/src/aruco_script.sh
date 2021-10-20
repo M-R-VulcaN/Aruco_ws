@@ -23,14 +23,7 @@ echo "done!"
 echo "camera location: ${CAMERA_LOCATION[@]}"
 sleep 0.5
 
-echo "${CAMERA_LOCATION[*]}"
-echo "$CAMERA_LOCATION"
-echo "${CAMERA_LOCATION[1]}"
-
 declare -a CAM=(${CAMERA_LOCATION[0]},${CAMERA_LOCATION[1]},${CAMERA_LOCATION[2]})
-echo $CAM
-
-# python2.7 $SCRIPTS_PATH/test.py   $CAM
 
 echo "running the launch file..."
 gnome-terminal --tab --title="roslaunch" -- roslaunch aruco_tf room_$1.launch
