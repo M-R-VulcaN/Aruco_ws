@@ -40,36 +40,66 @@ def create_df(room_data):
             room_lines = room_lines.append({'name': key, 'struct': walls[key], 'x': pts[0], 'y': pts[1], 'z': 0}, ignore_index=True)
     return locations, room_lines
 
-def create_fig(dir_path):
-    yaml_path = dir_path + '/params.yaml'
-    room_data = read_yaml(yaml_path)
-    locations, room_lines = create_df(room_data)
+def add_person_data(csv_path, res_df = []):
+    df = pd.read_csv(csv_path)
+    
 
-    fig = px.line_3d(room_lines, x='x', y='y', z='z', hover_data=['struct'], color='name', title=room_data['description'])
+def create_fig(dir_path, max_time=-1, fig=None):
+    global csv_df
+    global rec_dir_path
+    if rec_dir_path != dir_path or fig is None: #TODO: global fig and update instead of add_trace
+        rec_dir_path = dir_path
+        print(rec_dir_path)
+        yaml_path = dir_path + '/params.yaml'
+        room_data = read_yaml(yaml_path)
+        locations, room_lines = create_df(room_data)
 
-    fig_locations = px.scatter_3d(locations, symbol='group',
-                                  x='x', y='y', z='z',
-                                  hover_data=['name'])
-    for data in fig_locations.data:
-        fig.add_trace(data)
+
+        fig = px.line_3d(room_lines, x='x', y='y', z='z', hover_data=['struct'], color='name', title=room_data['description'])
+
+        fig_locations = px.scatter_3d(locations, symbol='group',
+                                    x='x', y='y', z='z',
+                                    hover_data=['name'])
+        for data in fig_locations.data:
+            fig.add_trace(data)
+
+        if PLOT_XYZ:
+            try:
+                csv_df = pd.read_csv(glob.glob(dir_path + '/*.csv')[0])
+                csv_df['time_sec_str'] =  (csv_df['pcapTime'] / 1000.0).apply(lambda x: '{0:.2f}'.format(x))
+            except:
+                print('no csv...')
+                return fig  
 
     if PLOT_XYZ:
-        try:
-            df = pd.read_csv(glob.glob(dir_path + '/*.csv')[0])
-        except:
-            return fig            
-        fig.add_trace(plotly.graph_objs.Scatter3d(x=df['x'], y=df['y'], z=df['z'], name='xyz', mode='lines', 
-            hovertemplate='<b>%{text}</b><extra></extra>', text = [str(_str/1000) for _str in df['pcapTime']]))
-
+        csv_df_local = csv_df.copy()     
+        if max_time > 0:
+            csv_df_local = csv_df_local[csv_df_local['pcapTime'] / 1000.0 < max_time]
+        #df['color_scale_str'] =  (df['pcapTime'] / 1000.0).apply(lambda x: int(x))
+        tmp = px.scatter_3d(csv_df_local, x='x', y='y', z='z', text='time_sec_str', symbol='Lable', color='Lable').update_traces(mode='lines')
+        for data in tmp.data:
+            fig.add_trace(data)
 
     return fig
 
+csv_df = None
+rec_dir_path = None
 app = dash.Dash(__name__)
 rec_list = glob.glob(main_dir_path + '/*')
-fig = create_fig(rec_list[0])
+fig = create_fig(rec_list[-1])
 
 app.layout = html.Div([
     dcc.Graph(id="scatter-plot", figure=fig, style={"height": "80vh"}),
+    html.Div([
+    dcc.Slider(
+        id='my-slider',
+        min=0,
+        max=2000,
+        step=1,
+        value=2000,
+    ),
+    html.Div(id='slider-output-container')
+]),
     html.P("Recording List:"),
     dcc.Dropdown(
         id='rec_dropdown',
@@ -81,9 +111,11 @@ app.layout = html.Div([
 
 @app.callback(
     Output('scatter-plot', 'figure'),
-    Input('rec_dropdown', 'value')
+    Output('slider-output-container', 'children'),
+    Input('rec_dropdown', 'value'), 
+    Input('my-slider', 'value')
 )
-def update_output(value):
-    return create_fig(value)
+def update_output(rec_value, slider_value):
+    return [create_fig(rec_value, slider_value, fig=None), None]
 
 app.run_server(debug=True)
