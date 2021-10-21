@@ -94,9 +94,9 @@ app.layout = html.Div([
     dcc.Slider(
         id='my-slider',
         min=0,
-        max=2000,
+        max=4000,
         step=1,
-        value=2000,
+        value=4000,
     ),
     html.Div(id='slider-output-container')
 ]),
