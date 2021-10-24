@@ -6,13 +6,19 @@ main_dir_path = "/home/makeruser/Desktop/record-wifi-results/room_"
 
 room_number = input("enter room number: ")
 # room_number = 0
+pcap_number = input("enter pcap number: ")
+# pcap_number = 0
 
-df = pd.read_csv(main_dir_path + str(room_number) + '/dataset_room_' + str(room_number) + '_pcap_0.csv')
+df = pd.read_csv(main_dir_path + str(room_number) + '/dataset_room_' + str(room_number) + '_pcap_' + str(pcap_number) +'.csv')
 
 labelList = df['Lable'].tolist()
 xList = df['x'].tolist()
 yList = df['y'].tolist()
 zList = df['z'].tolist()
+
+# df.x.mul(0.88).to_csv(main_dir_path + str(room_number) + '/dataset_room_' + str(room_number) + '_pcap_' + str(pcap_number) +'.csv')
+# df.y.mul(0.88).to_csv(main_dir_path + str(room_number) + '/dataset_room_' + str(room_number) + '_pcap_' + str(pcap_number) +'.csv')
+# df.z.mul(0.88).to_csv(main_dir_path + str(room_number) + '/dataset_room_' + str(room_number) + '_pcap_' + str(pcap_number) +'.csv')
 
 for i in range(len(labelList)-1):
     if(labelList[i] != labelList[i+1] and labelList[i] != labelList[i-1]):
@@ -44,38 +50,62 @@ zCount = 0
 
 for index in range(len(zList)-1):
     if(zList[index] != 'Nan'):
-        if(float(zList[index])>1.8):
-            print("Z is higher than 1.8 m: ", index, zList[index])
+        # if(float(zList[index + 1]) - float(zList[index])>0.3):
+        #     print(labelList[index], abs(float(zList[index + 1]) - float(zList[index])))
+        #     df.loc[df['z'] == zList[index + 1], 'z'] = zList[index]
+        #     import pdb
+        #     pdb.set_trace()
+        # if(float(zList[index]) - float(zList[index - 1])>0.3):
+        #     print(labelList[index], abs(float(zList[index + 1]) - float(zList[index])))
+        #     import pdb
+        #     pdb.set_trace()
+
+
+        # df.loc[df['z'] == zList[index], 'x'] = float(xList[index]).multiply(0.88)
+        # df.loc[df['z'] == zList[index], 'y'] = float(yList[index]).multiply(0.88)
+        # print(float(xList[index]))
+        # print(float(yList[index]))
+        # print(df.loc[df['z'] == zList[index], 'x'])
+        # print(df.loc[df['z'] == zList[index], 'y'])
+        # import pdb
+        # pdb.set_trace()
+
+        if(float(zList[index])>1.64):
+            print("Z is higher than 1.64 m: ", index, zList[index])
+            df.loc[df['z'] == zList[index], 'Lable'] = 'Nan'
             df.loc[df['z'] == zList[index], 'x'] = 'Nan'
             df.loc[df['z'] == zList[index], 'y'] = 'Nan'
             df.loc[df['z'] == zList[index], 'z'] = 'Nan'
-            df.loc[df['z'] == zList[index], 'Lable'] = 'Nan'
             zCount+=1
-    # if(df['Lable'] == 'sitting' and float(zList[index]) > 1.5):
-    #     print(float(zList[index]))
         if(float(xList[index]) > room[0]):
             print("X is out of the room: ", index, xList[index])
             outCount+=1
         if(float(yList[index]) > room[1]):
             print("Y is out of the room: ", index, yList[index])
             outCount+=1
-            # import pdb
-            # pdb.set_trace()
 
-print("\n\nPLOT:\n{} times Z is higher than 1.8m\n{} times x or y out of the room".format(zCount, outCount))
+print("\n\nPLOT:\n{} times Z is higher than 1.64m\n{} times x or y out of the room".format(zCount, outCount))
 ## this will change the columns names but it will not match the names in the "plot_data.py"
 # print("renaming columns...")
 # df.rename(columns={'pcapTime': 'pcap_time',
 #                    'Lable': 'label',
 #                    'PC_time': 'pc_time'},inplace=True, errors='raise')
 # print("finished")
+# for index in range(len(zList)-1):
+#     if(zList[index] != 'Nan'):
+#         if(float(zList[index+1]) > float(zList[index]) + 0.15):
+#             print(float(zList[index-2]), float(zList[index-1]), "{",float(zList[index]), float(zList[index+1]), "}", float(zList[index+2]))
+#             df.loc[df['z'] == zList[index + 1], 'z'] = zList[index]
+#         if(float(zList[index-1]) > float(zList[index]) + 0.15):
+#             print(float(zList[index-2]), "{", float(zList[index-1]), float(zList[index]), "}", float(zList[index+1]), float(zList[index+2]))
+#             df.loc[df['z'] == zList[index - 1], 'z'] = zList[index]
 
 
 # Absolute path of a file
-old_name = main_dir_path + str(room_number) + '/dataset_room_' + str(room_number) + '_pcap_0.csv'
-new_name = main_dir_path + str(room_number) + '/dataset_room_' + str(room_number) + '_pcap_0_old.csv'
+old_name = main_dir_path + str(room_number) + '/dataset_room_' + str(room_number) + '_pcap_' + str(pcap_number) +'.csv'
+new_name = main_dir_path + str(room_number) + '/dataset_room_' + str(room_number) + '_pcap_' + str(pcap_number) +'_old.csv'
 
 # Renaming the file
 os.rename(old_name, new_name)
 
-df.to_csv(r'/home/makeruser/Desktop/record-wifi-results/room_' + room_number + '/dataset_room_' + room_number + '_pcap_0.csv', index = False, header = True)
+df.to_csv(r'/home/makeruser/Desktop/record-wifi-results/room_' + room_number + '/dataset_room_' + room_number + '_pcap_' + str(pcap_number) +'.csv', index = False, header = True)

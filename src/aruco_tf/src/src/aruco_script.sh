@@ -6,6 +6,7 @@ source ~/Aruco_ws/devel/setup.bash
 SCRIPTS_PATH="/home/makeruser/Aruco_ws/src/aruco_tf/src/src"
 LAUNCH_FILE_PATH="/home/makeruser/Aruco_ws/src/aruco_tf/src/launch"
 RESULTS_FOLDER_PATH="/home/makeruser/Desktop/record-wifi-results"
+# RESULTS_FOLDER_PATH="/home/makeruser/Desktop/baseline"
 TEMP_FOLDER_PATH="/home/makeruser/temp"
 
 FLOOR_ARUCO_IDS=(102,103,104)
@@ -58,6 +59,8 @@ for dir in "${out_array[@]}"
 do
 	echo  $dir
     echo "pcap index: $dir_counter"
+    echo "-------------------------"
     python3 /home/makeruser/Aruco_ws/src/aruco_tf/src/src/pcapToCsv.py   $1   $dir    "$TEMP_FOLDER_PATH/room_output/room_$1.csv"  $dir_counter
+    # python3 /home/makeruser/Aruco_ws/src/aruco_tf/src/src/pcapCsv.py   $1   $dir    "$TEMP_FOLDER_PATH/room_output/room_$1.csv"  $dir_counter
     let dir_counter++
 done
