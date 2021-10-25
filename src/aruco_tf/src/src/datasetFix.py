@@ -2,6 +2,7 @@ import pandas as pd
 import yaml
 import os
 
+#the directory that contain the csv's
 main_dir_path = "/home/makeruser/Desktop/record-wifi-results/room_"
 
 room_number = input("enter room number: ")
@@ -69,6 +70,24 @@ for index in range(len(zList)-1):
         # print(df.loc[df['z'] == zList[index], 'y'])
         # import pdb
         # pdb.set_trace()
+
+        if(float(xList[index+1])-float(xList[index]) > 0.2):
+            # print(df.loc[index, 'x'])
+            df.loc[index+1, 'x'] = df.loc[index, 'x']
+            print(float(xList[index+1])-float(xList[index]), float(xList[index+1]),float(xList[index]))
+            import pdb
+            pdb.set_trace()
+
+        if(float(yList[index+1])-float(yList[index]) > 0.2):
+            print(df.loc[index, 'x'])
+            print(df.loc[index+1, 'x'])
+            df.loc[index+1, 'y'] = df.loc[index, 'y']
+            print(df.loc[index, 'x'])
+            print(df.loc[index+1, 'x'])
+            print("\n\n")
+            print(float(yList[index+1])-float(yList[index]), float(yList[index+1]),float(yList[index]))
+            import pdb
+            pdb.set_trace()
 
         if(float(zList[index])>1.64):
             print("Z is higher than 1.64 m: ", index, zList[index])

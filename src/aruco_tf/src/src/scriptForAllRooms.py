@@ -2,7 +2,7 @@ import sys
 import numpy as np
 import subprocess
 
-room_numbers = [0,1,2,3,4,11,12,13,14]
+room_numbers = [0,1,2,3,4,11,12,13,14,100]
 
 for room in room_numbers:
     print("running bash script for room " + str(room))

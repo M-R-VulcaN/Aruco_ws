@@ -41,7 +41,7 @@ if __name__ == "__main__":
     count = 0
     j = -1
 
-    file_name = 'pcap_data.csv'
+    file_name = 'pcapdata.csv'
     with open(file_name, 'w') as csvfile:
         fieldnames = ['Timestamp', 'PC_time','pcapData']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
