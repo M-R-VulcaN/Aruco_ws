@@ -3,9 +3,6 @@ import ast
 
 def string_to_list(row):
     try:
-        # a = ast.literal_eval(row.replace('\n ', ' ').replace('  ', ' ').replace(' ', ',').replace('[,','['))
-        # import pdb
-        # pdb.set_trace()
         return ast.literal_eval(row.replace('\n ', ' ').replace('  ', ' ').replace(' ', ',').replace('[,','['))
         
     # except:
@@ -23,11 +20,11 @@ def string_to_list(row):
 def fix_df(df):
     print('fixing df')
 
-    df = df.dropna(subset=['pcapData'])
+    df = df.dropna(subset=['pcap_data'])
     channel_length = len(string_to_list(df.pcapData.iloc[0]))
-    res = df.apply(lambda row: string_to_list(row['pcapData']), axis=1)
+    res = df.apply(lambda row: string_to_list(row['pcap_data']), axis=1)
     df[[ 'channel_'+str(i) for i in range(channel_length) ]] = pd.DataFrame(res.tolist(), index= res.index)
-    df = df.drop(columns=['pcapData'])
+    df = df.drop(columns=['pcap_data'])
     print('done!')
 
     return df

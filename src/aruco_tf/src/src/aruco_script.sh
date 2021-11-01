@@ -6,7 +6,7 @@ source ~/Aruco_ws/devel/setup.bash
 SCRIPTS_PATH="/home/makeruser/Aruco_ws/src/aruco_tf/src/src"
 LAUNCH_FILE_PATH="/home/makeruser/Aruco_ws/src/aruco_tf/src/launch"
 RESULTS_FOLDER_PATH="/home/makeruser/Desktop/record-wifi-results"
-# RESULTS_FOLDER_PATH="/home/makeruser/Desktop/baseline"
+# BASELINE_FOLDER_PATH="/home/makeruser/Desktop/baseline"
 TEMP_FOLDER_PATH="/home/makeruser/temp"
 
 FLOOR_ARUCO_IDS=(102,103,104)
@@ -60,7 +60,9 @@ do
 	echo  $dir
     echo "pcap index: $dir_counter"
     echo "-------------------------"
+    #in case you are working on movement pcap:
     python3 /home/makeruser/Aruco_ws/src/aruco_tf/src/src/pcapToCsv.py   $1   $dir    "$TEMP_FOLDER_PATH/room_output/room_$1.csv"  $dir_counter
-    # python3 /home/makeruser/Aruco_ws/src/aruco_tf/src/src/pcapCsv.py   $1   $dir    "$TEMP_FOLDER_PATH/room_output/room_$1.csv"  $dir_counter
+    #in case you are working on baseline pcap:
+    # python3 /home/makeruser/Aruco_ws/src/aruco_tf/src/src/pcapCsv.py   $1   $dir    "$BASELINE_FOLDER_PATH/room_output/room_$1.csv"  $dir_counter
     let dir_counter++
 done

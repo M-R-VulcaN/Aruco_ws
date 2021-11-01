@@ -5,7 +5,6 @@ import os
 #the directory that contain the csv's
 main_dir_path = "/home/makeruser/Desktop/record-wifi-results/room_"
 
-
 def get_user_choise():
     room_number = input("enter room number: ")
     # room_number = 0
@@ -71,10 +70,6 @@ def main():
         yList = df['y'].tolist()
         zList = df['z'].tolist()
 
-        # df.x.mul(0.88).to_csv(main_dir_path + str(room_number) + '/dataset_room_' + str(room_number) + '_pcap_' + str(pcap_number) +'.csv')
-        # df.y.mul(0.88).to_csv(main_dir_path + str(room_number) + '/dataset_room_' + str(room_number) + '_pcap_' + str(pcap_number) +'.csv')
-        # df.z.mul(0.88).to_csv(main_dir_path + str(room_number) + '/dataset_room_' + str(room_number) + '_pcap_' + str(pcap_number) +'.csv')
-
         replace_labels_mistakes(df,labelList)
 
         replace_to_nan(df)
@@ -86,46 +81,6 @@ def main():
 
         for index in range(len(zList)-1):
             if(zList[index] != 'Nan'):
-                # if(float(zList[index + 1]) - float(zList[index])>0.3):
-                #     print(labelList[index], abs(float(zList[index + 1]) - float(zList[index])))
-                #     df.loc[df['z'] == zList[index + 1], 'z'] = zList[index]
-                #     import pdb
-                #     pdb.set_trace()
-                # if(float(zList[index]) - float(zList[index - 1])>0.3):
-                #     print(labelList[index], abs(float(zList[index + 1]) - float(zList[index])))
-                #     import pdb
-                #     pdb.set_trace()
-
-
-                # df.loc[df['z'] == zList[index], 'x'] = float(xList[index]).multiply(0.88)
-                # df.loc[df['z'] == zList[index], 'y'] = float(yList[index]).multiply(0.88)
-                # print(float(xList[index]))
-                # print(float(yList[index]))
-                # print(df.loc[df['z'] == zList[index], 'x'])
-                # print(df.loc[df['z'] == zList[index], 'y'])
-                # import pdb
-                # pdb.set_trace()
-
-
-                # ## FOR AMIR ->> not working, the issue is that the df in not updating, it works while trying the same thing in a seperate terminal but not in this code.
-                # if(float(xList[index+1])-float(xList[index]) > 0.2):
-                #     print(df.loc[index, 'x'])
-                #     df.loc[index+1, 'x'] = df.loc[index, 'x']
-                #     print(float(xList[index+1])-float(xList[index]), float(xList[index+1]),float(xList[index]))
-                #     import pdb
-                #     pdb.set_trace()
-
-                # if(float(yList[index+1])-float(yList[index]) > 0.2):
-                #     print(df.loc[index, 'y'])
-                #     print(df.loc[index+1, 'y'])
-                #     df.loc[index+1, 'y'] = df.loc[index, 'y']
-                #     print(df.loc[index, 'y'])
-                #     print(df.loc[index+1, 'y'])
-                #     print("\n\n")
-                #     print(float(yList[index+1])-float(yList[index]), float(yList[index+1]),float(yList[index]))
-                #     import pdb
-                #     pdb.set_trace()
-
 
                 #replacing places that 'Z' is higher than 1.64m, usually at the end of each movement
                 if(float(zList[index])>1.64):
@@ -136,12 +91,12 @@ def main():
                     df.loc[df['z'] == zList[index], 'z'] = 'Nan'
                     zCount+=1
 
-                #checking if the 'x' value is out of the room(getting room measures from the yaml file)
+                #check if the 'x' value is out of the room(getting room measures from the yaml file)
                 if(float(xList[index]) > room[0]):
                     print("X is out of the room: ", index, xList[index])
                     outCount+=1
 
-                #checking if the 'y' value is out of the room(getting room measures from the yaml file)
+                #check if the 'y' value is out of the room(getting room measures from the yaml file)
                 if(float(yList[index]) > room[1]):
                     print("Y is out of the room: ", index, yList[index])
                     outCount+=1
@@ -154,16 +109,6 @@ def main():
         #                    'Lable': 'label',
         #                    'PC_time': 'pc_time'},inplace=True, errors='raise')
         # print("finished")
-
-        ## ignore this
-        # for index in range(len(zList)-1):
-        #     if(zList[index] != 'Nan'):
-        #         if(float(zList[index+1]) > float(zList[index]) + 0.15):
-        #             print(float(zList[index-2]), float(zList[index-1]), "{",float(zList[index]), float(zList[index+1]), "}", float(zList[index+2]))
-        #             df.loc[df['z'] == zList[index + 1], 'z'] = zList[index]
-        #         if(float(zList[index-1]) > float(zList[index]) + 0.15):
-        #             print(float(zList[index-2]), "{", float(zList[index-1]), float(zList[index]), "}", float(zList[index+1]), float(zList[index+2]))
-        #             df.loc[df['z'] == zList[index - 1], 'z'] = zList[index]
 
         write_to_csv(df,room_number,csv)
 

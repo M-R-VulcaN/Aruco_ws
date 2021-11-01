@@ -106,7 +106,7 @@ def main(pcap_data_filename = "pcap_data.csv", room_filename_csv = None, pcap_da
     writer = csv.writer(file)
 
     assert writer != None
-    writer.writerow(['pcapTime', 'PC_time','x','y','z','Lable','pcapData'])  #writing the first line to the csv file.
+    writer.writerow(['pcap_time', 'pc_time','x','y','z','label','pcap_data'])  #writing the first line to the csv file.
 
     listCount = []
 
