@@ -3,11 +3,21 @@ import ast
 
 def string_to_list(row):
     try:
+        # a = ast.literal_eval(row.replace('\n ', ' ').replace('  ', ' ').replace(' ', ',').replace('[,','['))
+        # import pdb
+        # pdb.set_trace()
         return ast.literal_eval(row.replace('\n ', ' ').replace('  ', ' ').replace(' ', ',').replace('[,','['))
-    except:
+        
+    # except:
+    #     import pdb
+    #     pdb.set_trace()        
+    #     return None
+    except Exception as e: 
+        print(e)
+        new_row = ['Nan'] *255
         import pdb
         pdb.set_trace()        
-        return None
+        return new_row
    
 
 def fix_df(df):
