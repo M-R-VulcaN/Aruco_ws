@@ -1,0 +1,75 @@
+import yaml
+import sys
+import numpy as np
+
+YAML_FILE_PATH_INDEX = 1
+ROOM_NUMBER_INDEX = 2
+LAUNCH_FILE_PATH_INDEX = 3
+
+LAUNCH_FILE_STRING = """<?xml version="1.0"?>
+<launch>
+
+    <arg name="rviz"                   	default="false" />
+    <arg name="rviz_cfg"          		default="$(find aruco_tf)/launch/aruco.rviz" />
+    <arg name="use_urdf" 			default="false"/>
+
+    <!-- For TFs use one time URDF or continuos TFs topics -->
+    <group if="$(arg use_urdf)">
+     <param name="robot_description"  textfile="$(find structure_core)/launch/Structure.urdf" />
+    <node name="robot_state_publisher" pkg="robot_state_publisher"
+        type="robot_state_publisher" />   
+    </group>
+
+    <group unless="$(arg use_urdf)">
+        <!--                                                       name            x      y    z q q q                        -->
+        <node pkg ="tf" type="static_transform_publisher" name="aruco_102" args="{0}  {1}  {2} 3.14 0 0 room_link aruco_102 50" />
+        <node pkg ="tf" type="static_transform_publisher" name="aruco_103" args="{3}  {4}  {5} 3.14 0 0 room_link aruco_103 50" />
+        <node pkg ="tf" type="static_transform_publisher" name="aruco_104" args="{6}  {7}  {8} 3.14 0 0 room_link aruco_104 50" />
+        <!-- node pkg ="tf" type="static_transform_publisher" name="cam_weighted" args="0 0 0 0 0 0 0 room_link cam_weighted 50" /> -->
+        <!--                                                        name                 x                     y                   z                   qx                  qy                  qz                  qw                                  -->
+    </group> 
+
+
+    <!-- Visualization RVIZ -->
+    <node if="$(arg rviz)" pkg="rviz" type="rviz" name="rviz" args="-d $(arg rviz_cfg)"/>
+
+    </launch>"""
+
+#{9}  {10}  {11} {12} {13} {14} {15}
+
+def main():
+    # yaml_file_full_path = sys.argv[YAML_FILE_PATH_INDEX]
+
+    yaml_file_full_path = sys.argv[YAML_FILE_PATH_INDEX]
+
+    launch_file_full_path = sys.argv[LAUNCH_FILE_PATH_INDEX] + '/room_' + str(sys.argv[ROOM_NUMBER_INDEX]) + '.launch'
+
+
+    launch_file = open(launch_file_full_path,"w")
+    # Read YAML file		
+    with open(yaml_file_full_path, 'r') as stream:
+        data_loaded = yaml.safe_load(stream)
+    launch_file_string_formated = LAUNCH_FILE_STRING.format(
+        data_loaded["locations"]["qr102"]["x"],
+        data_loaded["locations"]["qr102"]["y"],
+        data_loaded["locations"]["qr102"]["z"],
+        data_loaded["locations"]["qr103"]["x"],
+        data_loaded["locations"]["qr103"]["y"],
+        data_loaded["locations"]["qr103"]["z"],
+        data_loaded["locations"]["qr104"]["x"],
+        data_loaded["locations"]["qr104"]["y"],
+        data_loaded["locations"]["qr104"]["z"]
+    )
+    cam_loc = (data_loaded["locations"]["camera"]["x"],
+    data_loaded["locations"]["camera"]["y"],
+    data_loaded["locations"]["camera"]["z"])
+    launch_file.write(launch_file_string_formated)
+    launch_file.close()
+    # print("camera location: ", cam_loc)
+    sys.exit(np.array(cam_loc))
+    # sys.exit(list(cam_loc))
+    
+
+
+if __name__ == "__main__":
+    main()

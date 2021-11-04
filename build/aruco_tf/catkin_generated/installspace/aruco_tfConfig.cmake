@@ -67,14 +67,14 @@ set(aruco_tf_CONFIG_INCLUDED TRUE)
 
 # set variables for source/devel/install prefixes
 if("FALSE" STREQUAL "TRUE")
-  set(aruco_tf_SOURCE_PREFIX /home/makeruser/aruco_ws/src/aruco_tf)
-  set(aruco_tf_DEVEL_PREFIX /home/makeruser/aruco_ws/devel)
+  set(aruco_tf_SOURCE_PREFIX /home/makeruser/Aruco_ws/src/aruco_tf)
+  set(aruco_tf_DEVEL_PREFIX /home/makeruser/Aruco_ws/devel)
   set(aruco_tf_INSTALL_PREFIX "")
   set(aruco_tf_PREFIX ${aruco_tf_DEVEL_PREFIX})
 else()
   set(aruco_tf_SOURCE_PREFIX "")
   set(aruco_tf_DEVEL_PREFIX "")
-  set(aruco_tf_INSTALL_PREFIX /home/makeruser/aruco_ws/install)
+  set(aruco_tf_INSTALL_PREFIX /home/makeruser/Aruco_ws/install)
   set(aruco_tf_PREFIX ${aruco_tf_INSTALL_PREFIX})
 endif()
 
@@ -154,7 +154,7 @@ foreach(library ${libraries})
     set(lib_path "")
     set(lib "${library}-NOTFOUND")
     # since the path where the library is found is returned we have to iterate over the paths manually
-    foreach(path /home/makeruser/aruco_ws/install/lib;/opt/ros/melodic/lib)
+    foreach(path /home/makeruser/Aruco_ws/install/lib;/home/makeruser/Aruco_ws/devel/lib;/opt/ros/melodic/lib)
       find_library(lib ${library}
         PATHS ${path}
         NO_DEFAULT_PATH NO_CMAKE_FIND_ROOT_PATH)
