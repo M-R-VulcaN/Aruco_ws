@@ -58,10 +58,6 @@ if __name__ == "__main__":
             count += 1
             last = j
 
-    # print("running pcapCsvToDs...")
-    # import pcapCsvToDs
-    # pcapCsvToDs.main(room_filename_csv=LABELED_ARUCO_FILE_PATH,display_graphs=False)
-
     print("finished\nrunning the pcap data fix script...")
     import pcapFix 
     pcapFix.main()
@@ -75,7 +71,7 @@ if __name__ == "__main__":
     newList.append(lablesArr[0])    # pcap time
     newList.extend(lablesArr[2:])   # pcap data
     newList.append(lablesArr[1])    # pc time
-    # newList.append(lablesArr[5])    # lable
+    # newList.append(lablesArr[5])    # label
     # newList.extend(lablesArr[2:5])  # x y z
 
     df = df[newList]
