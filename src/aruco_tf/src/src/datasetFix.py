@@ -26,15 +26,15 @@ def replace_labels_mistakes(df,labelList):
             print(i+1, labelList[i+1])
 
             print("need to replace (", i, labelList[i] ,") with 'DO_NOT_USE'\n\n")
-            df.loc[i, 'Lable'] = 'DO_NOT_USE'
+            df.loc[i, 'label'] = 'DO_NOT_USE'
             # import pdb
             # pdb.set_trace()
 
 def replace_to_nan(df):
-    df.loc[df['Lable'] == 'DO_NOT_USE', 'x'] = 'Nan'
-    df.loc[df['Lable'] == 'DO_NOT_USE', 'y'] = 'Nan'
-    df.loc[df['Lable'] == 'DO_NOT_USE', 'z'] = 'Nan'
-    df.loc[df['Lable'] == 'DO_NOT_USE', 'Lable'] = 'Nan'
+    df.loc[df['label'] == 'DO_NOT_USE', 'x'] = 'Nan'
+    df.loc[df['label'] == 'DO_NOT_USE', 'y'] = 'Nan'
+    df.loc[df['label'] == 'DO_NOT_USE', 'z'] = 'Nan'
+    df.loc[df['label'] == 'DO_NOT_USE', 'label'] = 'Nan'
 
 def read_room_size_from_yaml(room_number):
     with open(main_dir_path + str(room_number) +'/params.yaml', 'r') as stream:
@@ -65,7 +65,7 @@ def main():
         print("\nfixing dataset for:\nroom: {}\ncsv: {}".format(room_number,csv))
         df = pd.read_csv(main_dir_path + str(room_number) + '/dataset_room_' + str(room_number) + '_pcap_' + str(csv) +'.csv')
 
-        labelList = df['Lable'].tolist()
+        labelList = df['label'].tolist()
         xList = df['x'].tolist()
         yList = df['y'].tolist()
         zList = df['z'].tolist()
@@ -85,7 +85,7 @@ def main():
                 #replacing places that 'Z' is higher than 1.64m, usually at the end of each movement
                 if(float(zList[index])>1.64):
                     print("Z is higher than 1.64 m: ", index, zList[index])
-                    df.loc[df['z'] == zList[index], 'Lable'] = 'Nan'
+                    df.loc[df['z'] == zList[index], 'label'] = 'Nan'
                     df.loc[df['z'] == zList[index], 'x'] = 'Nan'
                     df.loc[df['z'] == zList[index], 'y'] = 'Nan'
                     df.loc[df['z'] == zList[index], 'z'] = 'Nan'
@@ -103,13 +103,6 @@ def main():
         print("\n\n===============================================")
         print("PLOT:\n{} times Z is higher than 1.64m\n{} times x or y out of the room\n\nrun the script again to see if there any mistakes left.".format(zCount, outCount))
         
-        ## this will change the columns names but it will not match the names in the "plot_data.py"
-        # print("renaming columns...")
-        # df.rename(columns={'pcapTime': 'pcap_time',
-        #                    'Lable': 'label',
-        #                    'PC_time': 'pc_time'},inplace=True, errors='raise')
-        # print("finished")
-
         write_to_csv(df,room_number,csv)
 
 
