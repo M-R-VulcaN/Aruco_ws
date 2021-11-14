@@ -117,10 +117,7 @@ def get_position_from_single_aruco(rvec, tvec, ids):
 
     print("quat "+str(ids[0]), quat)
     print("translate "+str(ids[0]), translate)
-    #time.sleep(0.2)
-    # if ids[0] == 102:
-    #     import pdb
-    #     pdb.set_trace()
+
     if(translate[2] > 0):
         br.sendTransform((translate),(quat),rospy.Time.now(),"cam_loc_"+ str(ids[0]),"aruco_"+str(ids[0])) #publish the transformation for this tag
     else:
@@ -326,7 +323,7 @@ if __name__ == '__main__':
     file,video = get_user_choise()
 
     writer = csv.writer(file)
-    writer.writerow(['Time:','x','y','z','ms','Lable'])  #writing the first line to the csv file.
+    writer.writerow(['Time:','x','y','z','ms','Label'])  #writing the first line to the csv file.
 
     rospy.init_node('arucoDetect')
     br = tf.TransformBroadcaster()

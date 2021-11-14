@@ -79,7 +79,7 @@ def main(pcap_data_filename = "pcap_data.csv", room_filename_csv = None, pcap_da
     room_file = pd.read_csv(room_filename_csv)
 
     assert type(room_file) != "None"
-    room_file.columns = ["Time", "x", "y", "z", "ms", "Lable"]
+    room_file.columns = ["Time", "x", "y", "z", "ms", "Label"]
 
     all_times_aruco = room_file["Time"].tolist() #aruco time
 
@@ -94,7 +94,7 @@ def main(pcap_data_filename = "pcap_data.csv", room_filename_csv = None, pcap_da
     assert NaN not in fp_x and NaN not in fp_y and NaN not in fp_z
 
     mslist = list(room_file.ms)
-    lablelist = list(room_file.Lable)
+    lablelist = list(room_file.Label)
 
     assert len(mslist) == len(lablelist) and len(mslist) != 0
 

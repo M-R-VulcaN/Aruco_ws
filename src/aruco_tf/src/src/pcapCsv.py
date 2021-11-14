@@ -73,7 +73,7 @@ if __name__ == "__main__":
     newList = []
 
     newList.append(lablesArr[0])    # pcap time
-    newList.extend(lablesArr[6:])   # pcap data
+    newList.extend(lablesArr[2:])   # pcap data
     newList.append(lablesArr[1])    # pc time
     # newList.append(lablesArr[5])    # lable
     # newList.extend(lablesArr[2:5])  # x y z
