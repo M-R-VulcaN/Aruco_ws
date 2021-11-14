@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<launch>
+
+    <arg name="rviz"                   	default="false" />
+    <arg name="rviz_cfg"          		default="$(find aruco_tf)/launch/aruco.rviz" />
+    <arg name="use_urdf" 			default="false"/>
+
+    <!-- For TFs use one time URDF or continuos TFs topics -->
+    <group if="$(arg use_urdf)">
+     <param name="robot_description"  textfile="$(find structure_core)/launch/Structure.urdf" />
+    <node name="robot_state_publisher" pkg="robot_state_publisher"
+        type="robot_state_publisher" />   
+    </group>
+
+    <group unless="$(arg use_urdf)">
+        <!--                                                       name            x      y    z q q q                        -->
+        <node pkg ="tf" type="static_transform_publisher" name="aruco_102" args="0.95  2.74  0 3.14 0 0 room_link aruco_102 50" />
+        <node pkg ="tf" type="static_transform_publisher" name="aruco_103" args="2.25  2.82  0 3.14 0 0 room_link aruco_103 50" />
+        <node pkg ="tf" type="static_transform_publisher" name="aruco_104" args="2.06  1.91  0 3.14 0 0 room_link aruco_104 50" />
+        <!-- node pkg ="tf" type="static_transform_publisher" name="cam_weighted" args="0 0 0 0 0 0 0 room_link cam_weighted 50" /> -->
+        <!--                                                        name                 x                     y                   z                   qx                  qy                  qz                  qw                                  -->
+    </group> 
+
+
+    <!-- Visualization RVIZ -->
+    <node if="$(arg rviz)" pkg="rviz" type="rviz" name="rviz" args="-d $(arg rviz_cfg)"/>
+
+    </launch>
