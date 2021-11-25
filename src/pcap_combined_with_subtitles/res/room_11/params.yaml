@@ -1,0 +1,62 @@
+ips:
+  - 192.168.0.102 # 0
+  - 192.168.0.103 # 1
+  - 192.168.0.104 # 2
+  - 192.168.0.105 # 3
+channel: 36
+bandwidth: 80
+mac_address: dc:a6:32:b7:64:1b
+interface: wlan0
+custom_cmd: 500
+cmd_buffer_len: 34
+coremask: 1
+nssmask: 1
+
+room_id: 11
+wall_structure: #x0, y0 are the walls that are on along x axis and y axis
+    x0: geves
+    y0: geves
+    x1: blockes
+    y1: blockes
+description: room 11 - with humans
+locations:
+  camera:
+    x: 0.35
+    y: 3.15
+    z: 1.88
+  "192.168.0.100":
+    x: 0.33
+    y: 2.15
+    z: 0.45
+  "192.168.0.102":
+    x: 3.52
+    y: 0.23
+    z: 0.46
+  "192.168.0.103":
+    x: 0.33
+    y: 1.88
+    z: 0.45
+  "192.168.0.104":
+    x: 4.59
+    y: 3.18
+    z: 0.6
+  "192.168.0.105":
+    x: 3.01
+    y: -0.5
+    z: 0.45
+  qr102:
+    x: 2.46
+    y: 2.29
+    z: 0
+  qr103:
+    x: 2.79
+    y: 1.74
+    z: 0
+  qr104:
+    x: 3.23
+    y: 2.79
+    z: 0
+  room:
+    x: 6.34
+    y: 3.67
+    z: 3
