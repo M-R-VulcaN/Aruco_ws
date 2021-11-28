@@ -186,7 +186,9 @@ def save_load_calib(mtx=None, dist=None, save_calib=False):
 def get_position_from_image(frame, to_draw=False, to_show=False, mtx=None, dist=None, save_calib=False):
 
     mtx, dist = save_load_calib(mtx=mtx, dist=dist, save_calib=save_calib)
-    #print(mtx, dist)
+    # print(mtx, dist)
+    # import pdb
+    # pdb.set_trace()
     # operations on the frame
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
