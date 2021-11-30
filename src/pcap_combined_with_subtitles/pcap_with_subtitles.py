@@ -3,8 +3,8 @@ import sys
 import csv
 import parse
 from  datetime import datetime
-from constants import *
-
+import constants as cons
+import my_types as tp
 
 def get_frames_labeled_list(labels_reader):
     """returns a list of tuples with length of 2 with the follow pattern: (FRAME_NUMBER, LABEL_NAME)"""
@@ -47,26 +47,16 @@ def timestamp_frames_labeled_list(frames_labeled, image_names_file ):
 
 
 def main():
-    labels_file = open(LABELS_FILE_PATH,'r')
-    image_names_file = open(IMAGE_NAMES_FILE_PATH,'r')
-    dataset_0_file = open(DATASET_FILES_PATHS[0],'r')
-    output_0_file = open(OUTPUT_FILES_PATHS[0],'w')
+    labels_file = open(cons.LABELS_FILE_PATH,'r')
+    image_names_file = open(cons.IMAGE_NAMES_FILE_PATH,'r')
+    print()
+    dataset_0_file = open(cons.DATASET_FILES_PATHS[0],'r')
+    output_0_file = open(cons.OUTPUT_FILES_PATHS[0],'w')
     
-    labels_reader = csv.reader(labels_file)
-    frames_labeled = get_frames_labeled_list(labels_reader)
-
-    dataset_0_reader = csv.reader(dataset_0_file)
-    output_0_writer = csv.reader(output_0_file)
-
-    label_index = 0
-    timestamps_labeled = timestamp_frames_labeled_list(frames_labeled, image_names_file)
-    # for dataset_line in dataset_0_reader:
-    print(timestamps_labeled)
-    exit(0)
-        
-
-
-
+    labeled_frames = tp.FrameLabeled.loadListFromFile(labels_file)
+    timestamped_frames = tp.FrameTimestamped.loadListFromFile(image_names_file)
+    timestamped_labels = tp.LabelTimestamped.mergeLabelsWithTimestamps(timestamped_frames, labeled_frames)
+    tp.LabelTimestamped.save_list_to_csv(timestamped_labels, f'{cons.OUTPUT_DIR}/room_{cons.CURR_ROOM_NUM}_subtitles.csv', timestamped_frames[-1].timestamp_ms)
     labels_file.close()
     dataset_0_file.close()
     output_0_file.close()
