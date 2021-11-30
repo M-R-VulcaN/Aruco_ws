@@ -1,42 +1,49 @@
 import os 
 import sys
 import csv
-
-PCAP_FILES_AMOUNT = 4
-
-
-#<paths>
-ROOT_DIR = os.path.dirname(os.path.realpath(__file__))
-RES_DIR = f'{ROOT_DIR}/res'
-OUTPUT_DIR = f'{ROOT_DIR}/output'
-
-#<argv>
-if len(sys.argv) == 1:
-    print('usage: enter the room number')
-    exit(1)
+import parse
+from  datetime import datetime
+from constants import *
 
 
-CURR_ROOM_NUM_INDEX = 1
+def get_frames_labeled_list(labels_reader):
+    """returns a list of tuples with length of 2 with the follow pattern: (FRAME_NUMBER, LABEL_NAME)"""
+    res = []
+    for line in labels_reader:
+        frame_num = int(line[0])
+        label_name = line[1]
+        res.append((frame_num, label_name))
+    return res
 
+def timestamp_frames_labeled_list(frames_labeled, image_names_file ):
+    res = []
+    curr_frame_index = 0
+    frames_labeled_len = len(frames_labeled)
+    
+    image_names_file_lines = []
+    for line in image_names_file:
+        image_names_file_lines.append(line)
 
-try:
-    CURR_ROOM_NUM = int(sys.argv[CURR_ROOM_NUM_INDEX])
-except ValueError:
-    print('Error: make sure that the room number is an integer')
-    exit(2)
-#</argv> 
+    image_names_file_lines.sort(key=lambda x: int(x.split('_')[0].replace('image', '')))
+  
+    for line in image_names_file_lines:
+        parse_output = parse.parse("image{0}_{1}.jpg\n",line)
+        frame_number = int(parse_output[0])
 
-ROOM_DIR = f'{RES_DIR}/room_{CURR_ROOM_NUM}'
-LABELS_FILE_PATH = f'{ROOM_DIR}/room_{CURR_ROOM_NUM}_images.csv'
-IMAGE_NAMES_FILE_PATH = f'{ROOM_DIR}/image_names.txt'
-OUTPUT_FILES_PATHS = [f'{OUTPUT_DIR}/dataset_room_{CURR_ROOM_NUM}_pcap_{pcap_num}.csv' for pcap_num in range(PCAP_FILES_AMOUNT)]
+        if frame_number != frames_labeled[curr_frame_index][0]:
+            continue
 
-DATASET_FILES_PATHS = [f'{ROOM_DIR}/dataset_room_{CURR_ROOM_NUM}_pcap_{pcap_num}.csv' for pcap_num in range(PCAP_FILES_AMOUNT)]
-#</paths>
+        timestamp_str = parse_output[1]
+        # timestamp_ms = datetime.strptime(timestamp_str, '%H_%M_%S_%f').timestamp() * 1000
+        res.append((timestamp_str,frames_labeled[curr_frame_index][1]))
+        curr_frame_index += 1
+        if frames_labeled_len == curr_frame_index:
+            break
+    
+    # for item in res:
+        
 
-
-
-def get_frame_timestamps(image_names_list):
+    return res
 
 
 def main():
@@ -44,17 +51,19 @@ def main():
     image_names_file = open(IMAGE_NAMES_FILE_PATH,'r')
     dataset_0_file = open(DATASET_FILES_PATHS[0],'r')
     output_0_file = open(OUTPUT_FILES_PATHS[0],'w')
-
+    
     labels_reader = csv.reader(labels_file)
+    frames_labeled = get_frames_labeled_list(labels_reader)
+
     dataset_0_reader = csv.reader(dataset_0_file)
     output_0_writer = csv.reader(output_0_file)
 
     label_index = 0
-    dataset_index = 0
-
-    while True:
-        curr_row_dataset = next(dataset_0_reader)
-        curr_row_label = next(dataset_0_reader)
+    timestamps_labeled = timestamp_frames_labeled_list(frames_labeled, image_names_file)
+    # for dataset_line in dataset_0_reader:
+    print(timestamps_labeled)
+    exit(0)
+        
 
 
 
