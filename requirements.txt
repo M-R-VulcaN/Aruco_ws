@@ -15,7 +15,7 @@ camera-calibration-parsers==1.11.13
 catkin==0.7.29
 catkin-pkg==0.4.23
 catkin-pkg-modules==0.4.23
-certifi==2021.5.30
+certifi==2022.12.7
 cfclient==2021.4
 cffi==1.14.5
 # Editable install with no version control (cflib==0.1.15)
